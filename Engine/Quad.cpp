@@ -141,7 +141,7 @@ HRESULT Quad::LoadTexture()
 {
 	pTexture_ = new Texture;
 	HRESULT hr;
-	hr = pTexture_->Load("Assets\\Dice.png");
+	hr = pTexture_->Load("Assets/balloon.png");
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "ファイルのロードに失敗しました", "エラー", MB_OK);
 		return hr;

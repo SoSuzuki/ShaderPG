@@ -1,6 +1,8 @@
 #include "Stage.h"
 #include "Engine/Model.h"
 
+#include "Engine/Quad.h"
+
 Stage::Stage(GameObject* parent)
 	:GameObject(parent, "Player"), hModel_(-1)
 {
@@ -26,6 +28,8 @@ void Stage::Draw()
 {
 	Model::SetTransform(hModel_, transform_);
 	Model::Draw(hModel_);
+	Quad* q = new Quad;
+	q->Draw(transform_);
 }
 
 void Stage::Release()

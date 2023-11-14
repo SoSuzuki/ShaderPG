@@ -55,21 +55,25 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-	float4 lightSource = float4(1.0,1.0,1.0,1.0);
-	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
-	float4 diffuse;
-	float4 ambient;
-	if (isTexture) {
-		// 拡散反射色（なんか明るいやつ）
-		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
-		// 環境反射色（なんか暗いやつ）
-		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
-	}
-	else {
-		// 拡散反射色（なんか明るいやつ）
-		diffuse = lightSource * diffuseColor * inData.color;
-		// 環境反射色（なんか暗いやつ）
-		ambient = lightSource * diffuseColor * ambientSource;
-	}
-	return (diffuse + ambient);
+	//float4 lightSource = float4(1.0,1.0,1.0,1.0);
+	//float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
+	//float4 diffuse;
+	//float4 ambient;
+	//if (isTexture) {
+	//	// 拡散反射色（なんか明るいやつ）
+	//	diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
+	//	// 環境反射色（なんか暗いやつ）
+	//	ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
+	//}
+	//else {
+	//	// 拡散反射色（なんか明るいやつ）
+	//	diffuse = lightSource * diffuseColor * inData.color;
+	//	// 環境反射色（なんか暗いやつ）
+	//	ambient = lightSource * diffuseColor * ambientSource;
+	//}
+	//return (diffuse + ambient);
+
+	// Postarization
+	float4 output = floor(g_texture.Sample(g_sampler,inData.uv) * 8.0) / 8;
+	return output;
 }

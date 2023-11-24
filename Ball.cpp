@@ -12,7 +12,7 @@ Ball::~Ball()
 void Ball::Initialize()
 {
 	//モデルデータのロード
-	hModel_ = Model::Load("Assets/Balloon.fbx");
+	hModel_ = Model::Load("Assets/Ball.fbx");
 	assert(hModel_ >= 0);
 	transform_.position_ = XMFLOAT3(7.0f, 1.0f, 7.0f);
 }

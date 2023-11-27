@@ -11,8 +11,10 @@ SamplerState	g_sampler : register(s0);	//サンプラー
 cbuffer global
 {
 	float4x4	matWVP;			// ワールド・ビュー・プロジェクションの合成行列
-	float4x4	matNormal;		//ワールド行列	matWから改名
+	float4x4	matNormal;		// ワールド行列	matWから改名
+	float4		lightDirection;	// ライトの方向ベクトル
 	float4		diffuseColor;	// ディフューズカラー（マテリアルの色）
+	float4		eyePos;			// 視点座標
 	bool		isTexture;		// テクスチャ貼ってあるかどうか
 };
 
@@ -41,7 +43,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
 	outData.uv = uv;
-
+	
 	//法線を回転
 	normal = mul(normal, matNormal);
 
@@ -88,15 +90,17 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	float4 lightSource = float4(1.0,1.0,1.0,1.0);
 	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
-	float4
+	//float4 specularSource = float4(1.0, 1.0, 1.0, 1.0);
 	float4 diffuse;
 	float4 ambient;
+	float4 specular;
 	if (isTexture) {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
 		// 環境反射色（なんか暗いやつ）
 		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
-	}
+		// 鏡面反射色（なんかツルツルなやつ）
+		specular = lightSource * g_texture.Sample(g_sampler,inData.uv)
 	else {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor * inData.color;

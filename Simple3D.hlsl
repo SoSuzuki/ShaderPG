@@ -24,7 +24,10 @@ struct VS_OUT
 	float4 pos    : SV_POSITION;	//位置
 	float2 uv	  :	TEXCOORD;		//UV座標
 	float4 color	: COLOR;		//色->輝度（明るさ）
+	float4 posw : POSITION0;    //ワールド座標系の座標
+	float4 norw : NORMAL0;      //ワールド座標系の法線
 };
+
 
 //───────────────────────────────────────
 // 頂点シェーダ
@@ -42,7 +45,8 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	//法線を回転
 	normal = mul(normal, matNormal);
 
-	float4 light = float4( 1.0, 0.8, -1.5, 0);	//光源の向き（この座標から光源が"来る"）
+	//float4 light = float4( 1.0, 0.8, -1.5, 0);	//光源の向き（この座標から光源が"来る"）
+	float4 light = float4(-1, 0, 0, 0);
 	light = normalize(light);
 	outData.color = clamp(dot(normal, light), 0, 1);
 
@@ -55,8 +59,36 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
+	/*
 	float4 lightSource = float4(1.0,1.0,1.0,1.0);
 	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
+	float4 
+	float4 diffuse;
+	float4 ambient;
+	if (isTexture) {
+		// 拡散反射色（なんか明るいやつ）
+		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
+		// 環境反射色（なんか暗いやつ）
+		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
+	}
+	else {
+		// 拡散反射色（なんか明るいやつ）
+		diffuse = lightSource * diffuseColor * inData.color;
+		// 環境反射色（なんか暗いやつ）
+		ambient = lightSource * diffuseColor * ambientSource;
+	}
+	return (diffuse + ambient);
+
+	*/
+	/*
+	// Postarization
+	float4 output = floor(g_texture.Sample(g_sampler,inData.uv) * 8.0) / 8;
+	return output;
+	*/
+
+	float4 lightSource = float4(1.0,1.0,1.0,1.0);
+	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
+	float4
 	float4 diffuse;
 	float4 ambient;
 	if (isTexture) {

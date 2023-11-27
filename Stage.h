@@ -5,6 +5,8 @@ class Stage :
 {
 private:
     int hModel_;    //モデル番号
+    int xSize_;
+    int zSize_;
 
 public:
     //コンストラクタ

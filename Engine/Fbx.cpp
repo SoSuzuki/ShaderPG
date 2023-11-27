@@ -242,6 +242,7 @@ void Fbx::Draw(Transform& transform)
 		CONSTANT_BUFFER cb;
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
+		cb.eyePos = Camera::GetEyePos();
 
 		if (i == 1) {
 			cb.diffuseColor = XMFLOAT4(1, 1, 1, 1);
@@ -253,29 +254,17 @@ void Fbx::Draw(Transform& transform)
 			cb.isTextured = pMaterialList_[i].pTexture != nullptr;
 		}
 
-
-
-
-
-
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
 		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
 
-
-
 		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);	//再開
-
-
 
 		//頂点バッファ、インデックスバッファ、コンスタントバッファをパイプラインにセット
 		//頂点バッファ
 		UINT stride = sizeof(VERTEX);
 		UINT offset = 0;
 		Direct3D::pContext_->IASetVertexBuffers(0, 1, &pVertexBuffer_, &stride, &offset);
-
-
-
 
 		// インデックスバッファーをセット
 		stride = sizeof(int);

@@ -23,11 +23,10 @@ cbuffer global
 //───────────────────────────────────────
 struct VS_OUT
 {
-	float4 pos    : SV_POSITION;	//位置
-	float2 uv	  :	TEXCOORD;		//UV座標
-	float4 color	: COLOR;		//色->輝度（明るさ）
-	float4 posw : POSITION0;    //ワールド座標系の座標
-	float4 norw : NORMAL0;      //ワールド座標系の法線
+	float4 pos		:	SV_POSITION;	//位置
+	float4 color	:	COLOR;			//色->輝度（明るさ）
+	float4 eyepos	:	SV_POSITION;	//視点
+	float2 uv		:	TEXCOORD;		//UV座標
 };
 
 
@@ -90,7 +89,6 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	float4 lightSource = float4(1.0,1.0,1.0,1.0);
 	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
-	//float4 specularSource = float4(1.0, 1.0, 1.0, 1.0);
 	float4 diffuse;
 	float4 ambient;
 	float4 specular;
@@ -107,5 +105,4 @@ float4 PS(VS_OUT inData) : SV_Target
 		// 環境反射色（なんか暗いやつ）
 		ambient = lightSource * diffuseColor * ambientSource;
 	}
-	return (diffuse + ambient);
-}
+	return (diffuse + ambient + specular);

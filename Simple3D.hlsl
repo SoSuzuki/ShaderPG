@@ -42,7 +42,8 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
 	outData.uv = uv;
-	
+	outData.eyepos = eyePos - (pos, matNormal);
+
 	//法線を回転
 	normal = mul(normal, matNormal);
 

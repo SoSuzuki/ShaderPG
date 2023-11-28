@@ -27,11 +27,12 @@ class Fbx
 
 	struct CONSTANT_BUFFER
 	{
-		XMMATRIX	matWVP;
-		XMMATRIX	matNormal;
+		XMMATRIX	matWVP;			// ワールド、ビュー、プロジェクション
+		XMMATRIX	matNormal;		// ワールド変換のみ
 		XMFLOAT4	diffuseColor;
+		XMFLOAT4	lightDirection;
 		XMFLOAT4	eyePos;
-		int		isTextured;
+		BOOL		isTextured;
 	};
 	
 	struct VERTEX
@@ -67,6 +68,8 @@ public:
 	void InitIndex(fbxsdk::FbxMesh* mesh);
 	void InitConstantBuffer();
 	void InitMaterial(fbxsdk::FbxNode* pNode);
+
+	//void SetFlatColor(XMFLOAT4 col);
 
 private:
 

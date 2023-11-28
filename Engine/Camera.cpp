@@ -11,10 +11,10 @@ namespace Camera
 //初期化
 void Camera::Initialize()
 {
-	//position_ = { 0, 3, -10, 0 };	//カメラの位置
-	//target_ = { 0, 0, 0, 0 };	//カメラの焦点
-	position_ = { 0.0f, 4.0f, -12.0f, 0.0f };	//カメラの位置
-	target_ = { 0.0f, 0.0f, -0.5f, 0.0f };	//カメラの焦点
+	position_ = { 0, 3, -10, 0 };	//カメラの位置
+	target_ = { 0, 0, 0, 0 };	//カメラの焦点
+	//position_ = { 0.0f, 4.0f, -12.0f, 0.0f };	//カメラの位置
+	//target_ = { 0.0f, 0.0f, -0.5f, 0.0f };	//カメラの焦点
 	//プロジェクション行列
 	projMatrix_ = XMMatrixPerspectiveFovLH(XM_PIDIV4, (FLOAT)800 / (FLOAT)600, 0.1f, 100.0f);
 }
@@ -49,11 +49,9 @@ void Camera::SetTarget(XMFLOAT3 target)
 	SetTarget(XMLoadFloat3(&target));
 }
 
-XMFLOAT4 Camera::GetEyePos()
+XMVECTOR Camera::GetEyePos()
 {
-	XMFLOAT4 eyePos;
-	XMStoreFloat4(&eyePos, position_);
-	return eyePos;
+	return position_;
 }
 
 //ビュー行列を取得

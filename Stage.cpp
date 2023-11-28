@@ -15,6 +15,7 @@ void Stage::Initialize()
 	//モデルデータのロード
 	hModel_ = Model::Load("Assets/BoxDefault.fbx");
 	assert(hModel_ >= 0);
+	transform_.scale_ = XMFLOAT3(10.0f, 0.1f, 10.0f);
 }
 
 void Stage::Update()
@@ -24,15 +25,8 @@ void Stage::Update()
 
 void Stage::Draw()
 {
-    for (int x = 0; x < xSize_; x++) {
-        for (int z = 0; z < zSize_; z++) {
-                Transform bTrans;
-                bTrans.position_.x = x;
-                bTrans.position_.z = z;
-                Model::SetTransform(hModel_, bTrans);
-                Model::Draw(hModel_);
-        }
-    }
+	Model::SetTransform(hModel_, transform_);
+    Model::Draw(hModel_);
 }
 
 void Stage::Release()

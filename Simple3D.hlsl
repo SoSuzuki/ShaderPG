@@ -12,8 +12,8 @@ cbuffer global
 {
 	float4x4	matWVP;			// ワールド・ビュー・プロジェクションの合成行列
 	float4x4	matNormal;		// ワールド行列	matWから改名
-	float4		lightDirection;	// ライトの方向ベクトル
 	float4		diffuseColor;	// ディフューズカラー（マテリアルの色）
+	float4		lightDirection;	// ライトの方向ベクトル
 	float4		eyePos;			// 視点座標
 	bool		isTexture;		// テクスチャ貼ってあるかどうか
 };
@@ -25,7 +25,6 @@ struct VS_OUT
 {
 	float4 pos		:	SV_POSITION;	//位置
 	float4 color	:	COLOR;			//色->輝度（明るさ）
-	float4 eyepos	:	SV_POSITION;	//視点
 	float2 uv		:	TEXCOORD;		//UV座標
 };
 
@@ -42,15 +41,18 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
 	outData.uv = uv;
-	outData.eyepos = eyePos - (pos, matNormal);
-
+	float4 mulEyePos = eyePos - mul(pos, matNormal);
 	//法線を回転
 	normal = mul(normal, matNormal);
 
 	//float4 light = float4( 1.0, 0.8, -1.5, 0);	// 光源の向き（この座標から光源が"来る"）
 	float4 light = float4(-1, 0, 0, 0);
 	light = normalize(light);
-	outData.color = clamp(dot(normal, light), 0, 1);// 範囲を絞る
+	//outData.color = clamp(dot(normal, light), 0, 1);// 範囲を絞る
+
+	
+	float4 reflect = 2 * normal * dot(normal, mulEyePos) - mulEyePos;
+	outData.color = clamp(reflect, 0, 1);
 
 	//まとめて出力
 	return outData;
@@ -90,6 +92,8 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	float4 lightSource = float4(1.0,1.0,1.0,1.0);
 	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
+	// 視線（カメラ位置）を正規化
+	float4 nEyePos = normalize(eyePos - matNormal);
 	float4 diffuse;
 	float4 ambient;
 	float4 specular;
@@ -99,7 +103,8 @@ float4 PS(VS_OUT inData) : SV_Target
 		// 環境反射色（なんか暗いやつ）
 		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
 		// 鏡面反射色（なんかツルツルなやつ）
-		specular = lightSource * g_texture.Sample(g_sampler,inData.uv)
+		specular = pow(saturate(dot(outData.color, nEyePos)), diffuseColor);
+	}
 	else {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor * inData.color;
@@ -107,3 +112,4 @@ float4 PS(VS_OUT inData) : SV_Target
 		ambient = lightSource * diffuseColor * ambientSource;
 	}
 	return (diffuse + ambient + specular);
+}

@@ -4,6 +4,8 @@
 #include "Camera.h"
 #include "Texture.h"
 
+const XMFLOAT4 LIGHT_DERECTION{ 1,0,-5,1 };
+
 Fbx::Fbx() :vertexCount_(0), polygonCount_(0), materialCount_(0),indexCount_(nullptr),
 pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), pMaterialList_(nullptr)
 {
@@ -242,7 +244,10 @@ void Fbx::Draw(Transform& transform)
 		CONSTANT_BUFFER cb;
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
-		cb.eyePos = Camera::GetEyePos();
+		cb.diffuseColor = pMaterialList_[i].diffuse;
+		cb.lightDirection = LIGHT_DERECTION;
+		XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
+
 
 		if (i == 1) {
 			cb.diffuseColor = XMFLOAT4(1, 1, 1, 1);

@@ -13,6 +13,7 @@ void Arrow::Initialize()
 {
 	hModel_ = Model::Load("Assets/ArrowTest.fbx");
 	assert(hModel_ >= 0);
+	transform_.position_.y = 1.0f;
 }
 
 void Arrow::Update()

@@ -51,7 +51,7 @@ VS_OUT VS(float4 pos : POSITION,float4 eyepos : POSITION, float4 uv : TEXCOORD, 
 	light = normalize(light);
 	outData.color = clamp(dot(normal, light), 0, 1);
 
-	outData.eyepos = eyePos - mul(pos,matNormal);
+	outData.eyepos = normalize(eyePos - mul(pos, matNormal));
 	float4 reverseVec = 2 * normal * dot(normal, lightDirection) - lightDirection;
 	outData.revvec = saturate(reverseVec);
 
@@ -66,7 +66,7 @@ float4 PS(VS_OUT inData) : SV_Target
 {
 	float4 lightSource = float4(1.0,1.0,1.0,1.0);
 	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
-	float4 specularSource = pow(dot(inData.revvec, inData.eyepos - inData.pos), diffuseColor) * inData.revvec * inData.color;
+	float4 specularSource = pow(dot(inData.revvec, inData.eyepos), diffuseColor.w) * 2.0 * inData.color;
 	float4 diffuse;
 	float4 ambient;
 	float4 specular;

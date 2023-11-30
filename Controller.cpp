@@ -6,7 +6,7 @@
 Controller::Controller(GameObject* parent)
 	:GameObject(parent, "Controller"), isDegOver(false)
 {
-	transform_.position_ = XMFLOAT3(7.0f, 0.0f, 7.0f);
+	//transform_.position_ = XMFLOAT3(7.0f, 0.0f, 7.0f);
 	transform_.rotate_.x = 45.0f;
 }
 

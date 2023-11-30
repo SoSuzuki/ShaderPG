@@ -23,8 +23,6 @@ void TestScene::Initialize()
 	Instantiate<Arrow>(this);
 	Instantiate<Ball>(this);
 	Instantiate<Controller>(this);
-	//Camera::SetPosition(XMFLOAT3(7.0f, 5.0f, 7.0f));
-	//Camera::SetTarget(XMFLOAT3(7.0f, 7.0f, 7.0f));
 }
 
 void TestScene::Update()

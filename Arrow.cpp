@@ -13,7 +13,6 @@ void Arrow::Initialize()
 {
 	hModel_ = Model::Load("Assets/ArrowTest.fbx");
 	assert(hModel_ >= 0);
-	transform_.position_ = XMFLOAT3(7.0f, 1.0f, 7.0f);
 }
 
 void Arrow::Update()

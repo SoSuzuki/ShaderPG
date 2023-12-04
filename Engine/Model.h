@@ -26,6 +26,10 @@ namespace Model
 	/// <param name="_t">トランスフォーム</param>
 	void SetTransform(int _hModel, Transform _t);
 
+	void SetLightPosition(XMFLOAT4);
+
+
+
 	/// <summary>
 	/// FBXのDrawを使って描画
 	/// </summary>

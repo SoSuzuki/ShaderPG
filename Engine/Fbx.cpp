@@ -244,20 +244,21 @@ void Fbx::Draw(Transform& transform)
 		CONSTANT_BUFFER cb;
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
+		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.diffuseColor = pMaterialList_[i].diffuse;
-		cb.lightDirection = LIGHT_DERECTION;
+		cb.lightPosition = LIGHT_DERECTION;
 		XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
+		cb.isTextured = pMaterialList_[i].pTexture != nullptr;
 
+		//if (i == 1) {
+		//	cb.diffuseColor = XMFLOAT4(1, 1, 1, 1);
+		//	cb.isTextured = pMaterialList_[i].pTexture != nullptr;
+		//}
 
-		if (i == 1) {
-			cb.diffuseColor = XMFLOAT4(1, 1, 1, 1);
-			cb.isTextured = pMaterialList_[i].pTexture != nullptr;
-		}
-
-		else {
-			cb.diffuseColor = pMaterialList_[i].diffuse;
-			cb.isTextured = pMaterialList_[i].pTexture != nullptr;
-		}
+		//else {
+		//	cb.diffuseColor = pMaterialList_[i].diffuse;
+		//	cb.isTextured = pMaterialList_[i].pTexture != nullptr;
+		//}
 
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める

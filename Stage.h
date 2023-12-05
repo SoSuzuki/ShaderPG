@@ -8,8 +8,6 @@ private:
     int xSize_;
     int zSize_;
 
-    ID3D11
-
 public:
     //コンストラクタ
     Stage(GameObject* parent);

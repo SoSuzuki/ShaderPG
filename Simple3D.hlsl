@@ -92,20 +92,16 @@ float4 PS(VS_OUT inData) : SV_Target
  // コンスタントバッファ
 // DirectX 側から送信されてくる、ポリゴン頂点以外の諸情報の定義
 //───────────────────────────────────────
-cbuffer gmodel:register(b0)
+cbuffer global
 {
 	float4x4	matWVP;			// ワールド・ビュー・プロジェクションの合成行列
 	float4x4	matW;			// ワールド行列
 	float4x4	matNormal;		// ワールド行列	matWから改名
 	float4		diffuseColor;	// マテリアルの色 => 拡散反射係数
+	float4		lightPos;
+	float4		eyePos;			// 視点座標
 	bool		isTexture;		// テクスチャ貼ってあるかどうか
 };
-
-cbuffer gmodel:register(b1)
-{
-	float4		lightPosition;
-	float4		eyePosition;	// 視点座標
-}
 
 //───────────────────────────────────────
 // 頂点シェーダー出力＆ピクセルシェーダー入力データ構造体
@@ -123,11 +119,10 @@ struct VS_OUT
 //───────────────────────────────────────
 // 頂点シェーダ
 //───────────────────────────────────────
-VS_OUT VS(float4 pos : SV_POSITION, float4 eyev : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
+VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 {
 	//ピクセルシェーダーへ渡す情報
 	VS_OUT outData = (VS_OUT)0;
-
 	//ローカル座標に、ワールド・ビュー・プロジェクション行列をかけて
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
@@ -138,12 +133,12 @@ VS_OUT VS(float4 pos : SV_POSITION, float4 eyev : POSITION, float4 uv : TEXCOORD
 	normal = normalize(normal);
 	outData.normal = normal;
 
-	float4 light = normalize(lightPosition);	//光源の向き（この座標から光源が"来る"）
-	outData.light = normalize(light);
+	float4 light = normalize(lightPos);	//光源の向き（この座標から光源が"来る"）
+	light = normalize(light);
 
 	outData.color = saturate(dot(normal, light));
 	float4 posw = mul(pos, matW);
-	outData.eyev = eyePosition - posw;
+	outData.eyev = eyePos - posw;
 
 	//まとめて出力
 	return outData;
@@ -159,10 +154,10 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 diffuse;
 	float4 ambient;
 	// 鏡面反射関連の処理
-	float4 NL = saturate(dot(inData.normal, normalize(lightPosition)));
-	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPosition));
+	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
+	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
 	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
-	if (isTexture==0) {
+	if (isTexture == false) {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor * inData.color;
 		// 環境反射色（なんか暗いやつ）
@@ -174,6 +169,6 @@ float4 PS(VS_OUT inData) : SV_Target
 		// 環境反射色（なんか暗いやつ）
 		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
 	}
-	return diffuse + specular + ambient;
+	return diffuse + ambient + specular;
 }
 #endif

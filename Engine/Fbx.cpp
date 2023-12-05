@@ -4,7 +4,7 @@
 #include "Camera.h"
 #include "Texture.h"
 
-const XMFLOAT4 LIGHT_DERECTION{ 1,0,-5,1 };
+const XMFLOAT4 LIGHT_DERECTION{ 1,5,0,1 };
 
 Fbx::Fbx() :vertexCount_(0), polygonCount_(0), materialCount_(0),indexCount_(nullptr),
 pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), pMaterialList_(nullptr)

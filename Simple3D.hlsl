@@ -46,13 +46,13 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	//法線を回転
 	normal.w = 0;
 	normal = mul(normal, matNormal);
-	normal = normalize(normal);
 	outData.normal = normal;
 
-	float4 light = normalize(lightPos);	//光源の向き（この座標から光源が"来る"）
+	float4 light = normalize(lightPos);	//光源の座標
 	light = normalize(light);
 
 	outData.color = saturate(dot(normal, light));
+	outData.color.a = 1;
 	float4 posw = mul(pos, matW);
 	outData.eyev = eyePos - posw;
 
@@ -68,22 +68,22 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 lightSource = float4(1.0,1.0,1.0,1.0);
 	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
 	float4 diffuse;
-	float4 ambient;
+	//float4 ambient;
 	// 鏡面反射関連の処理
 	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
 	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
 	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
 	if (isTexture == false) {
 		// 拡散反射色（なんか明るいやつ）
-		diffuse = lightSource * diffuseColor * inData.color;
+		diffuse = lightSource * diffuseColor;
 		// 環境反射色（なんか暗いやつ）
-		ambient = lightSource * diffuseColor * ambientSource;
+		//ambient = lightSource * diffuseColor * ambientSource;
 	}
 	else {
 		// 拡散反射色（なんか明るいやつ）
-		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
+		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv);
 		// 環境反射色（なんか暗いやつ）
-		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
+		//ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
 	}
-	return diffuse + ambient + specular;
+	return diffuse * inData.color + diffuse * ambientSource + specular;
 }

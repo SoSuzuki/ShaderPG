@@ -13,11 +13,12 @@ cbuffer global
 	float4x4	matWVP;			// ワールド・ビュー・プロジェクションの合成行列
 	float4x4	matW;			// ワールド行列
 	float4x4	matNormal;		// ワールド行列	matWから改名
+	float4		vecLightDir;	// ライトの方向ベクトル
 	float4		diffuseColor;	// マテリアルの色 => 拡散反射係数
-	float4		specularColor;	// スペキュラーカラー(ハイライトの色)
-	float4		shininess;		// ハイライトの強さ
-	float4		lightPos;
+	float4		ambientColor;	// 影の色 => 環境反射係数
+	float4		specularColor;	// ハイライトの色 => 鏡面反射係数
 	float4		eyePos;			// 視点座標
+	float		shininess;		// ハイライトの強さ
 	bool		isTexture;		// テクスチャ貼ってあるかどうか
 };
 
@@ -27,36 +28,33 @@ cbuffer global
 struct VS_OUT
 {
 	float4 pos		:	SV_POSITION;	//位置
-	float4 color	:	COLOR;			//色->輝度（明るさ）
-	float4 eyev		:	POSITION1;		//視点（カメラ位置）
-	float4 normal	:	POSITION2;
-	float4 light	:	POSITION3;
-	float2 uv		:	TEXCOORD;		//UV座標
+	float4 normal	:	TEXCOORD0;
+	float4 eyev		:	TEXCOORD1;		//視点（カメラ位置）
+	float2 uv		:	TEXCOORD2;		//UV座標
 };
 
 //───────────────────────────────────────
 // 頂点シェーダ
 //───────────────────────────────────────
-VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
+VS_OUT VS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD)
 {
 	//ピクセルシェーダーへ渡す情報
 	VS_OUT outData = (VS_OUT)0;
+	
 	//ローカル座標に、ワールド・ビュー・プロジェクション行列をかけて
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
-	outData.uv = uv;
+
 	//法線を回転
 	normal.w = 0;
 	normal = mul(normal, matNormal);
-	normal = normalize(normal);
 	outData.normal = normal;
 
-	float4 light = normalize(lightPos);	//光源の向き（この座標から光源が"来る"）
-	light = normalize(light);
+	//視線ベクトル
+	float4 wPos = mul(pos, matW);
+	outData.eyev = normalize(eyePos - wPos);
 
-	outData.color = saturate(dot(normal, light));
-	float4 posw = mul(pos, matW);
-	outData.eyev = eyePos - posw;
+	outData.uv = uv;
 
 	//まとめて出力
 	return outData;
@@ -67,40 +65,37 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-	float4 lightSource = float4(1.0,1.0,1.0,1.0);
-	float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
+	// ライトの向き
+	float4 lightSource = vecLightDir;	// グローバル変数だから一旦ローカルに
+	lightSource = normalize(lightSource);
+
+	// 法線の修正
+	inData.normal = normalize(inData.normal);
+
+	// 拡散反射光
+	float4 shade = saturate(dot(inData.normal, -lightSource));
+	shade.a = 1;	// 暗いと透明…よってαは強制的に１
 	float4 diffuse;
-	float4 ambient;
-	// 鏡面反射関連の処理
-	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
-	float4 specular = float4(0, 0, 0, 0);
-	
-	
-
-		
 	if (isTexture == false) {
-		// 拡散反射色（なんか明るいやつ）
-		diffuse = lightSource * diffuseColor * inData.color;
-		// 環境反射色（なんか暗いやつ）
-		ambient = lightSource * diffuseColor * ambientSource;
-
-		// スペキュラーの情報があったら代入
-		if (specularColor.a != 0) {
-			float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
-			specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
-		}
+		// マテリアルの色
+		diffuse = diffuseColor;
 	}
 	else {
-		// 拡散反射色（なんか明るいやつ）
-		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
-		// 環境反射色（なんか暗いやつ）
-		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
-
-		// スペキュラーの情報があったら代入
-		if (specularColor.a != 0) {
-			float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
-			specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
-		}
+		// マテリアルの色
+		diffuse = g_texture.Sample(g_sampler, inData.uv);
 	}
-	return diffuse + ambient + specular;
+
+	// 環境光
+	float4 ambient = ambientColor;	// Maya側で指定したものをそのまま使用
+
+	// 鏡面反射光
+	float4 specular = float4(0, 0, 0, 0);
+	if (specularColor.a != 0) {	// スペキュラーの情報があったら…
+		//float4 NL = saturate(dot(inData.normal, normalize(lightSource)));
+		//float4 reflect = normalize(2 * NL * inData.normal - normalize(lightSource));
+		float4 R = reflect(lightSource, inData.normal);
+		specular = pow(saturate(dot(R, inData.eyev)), shininess) * specularColor;
+	}
+
+	return diffuse * shade + diffuse * ambient + specular;
 }

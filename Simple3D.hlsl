@@ -75,11 +75,7 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
 	float4 specular = float4(0, 0, 0, 0);
 	
-	// スペキュラーの情報があったら
-	//if (specularColor.a != 0) {
-	//	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
-	//	specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
-	//}
+	
 
 		
 	if (isTexture == false) {
@@ -87,12 +83,24 @@ float4 PS(VS_OUT inData) : SV_Target
 		diffuse = lightSource * diffuseColor * inData.color;
 		// 環境反射色（なんか暗いやつ）
 		ambient = lightSource * diffuseColor * ambientSource;
+
+		// スペキュラーの情報があったら代入
+		if (specularColor.a != 0) {
+			float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
+			specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
+		}
 	}
 	else {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
 		// 環境反射色（なんか暗いやつ）
 		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
+
+		// スペキュラーの情報があったら代入
+		if (specularColor.a != 0) {
+			float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
+			specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
+		}
 	}
 	return diffuse + ambient + specular;
 }

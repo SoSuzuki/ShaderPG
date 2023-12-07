@@ -14,6 +14,8 @@ cbuffer global
 	float4x4	matW;			// ワールド行列
 	float4x4	matNormal;		// ワールド行列	matWから改名
 	float4		diffuseColor;	// マテリアルの色 => 拡散反射係数
+	float4		specularColor;	// スペキュラーカラー(ハイライトの色)
+	float4		shininess;		// ハイライトの強さ
 	float4		lightPos;
 	float4		eyePos;			// 視点座標
 	bool		isTexture;		// テクスチャ貼ってあるかどうか
@@ -71,8 +73,15 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 ambient;
 	// 鏡面反射関連の処理
 	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
-	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
-	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
+	float4 specular = float4(0, 0, 0, 0);
+	
+	// スペキュラーの情報があったら
+	if (specularColor.a != 0) {
+		float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
+		specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
+	}
+
+		
 	if (isTexture == false) {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor * inData.color;

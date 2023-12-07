@@ -22,7 +22,10 @@ class Fbx
 	struct MATERIAL
 	{
 		Texture* pTexture;
-		XMFLOAT4	diffuse;
+		XMFLOAT4	diffuse;	// 拡散反射光への反射強度
+		XMFLOAT4	ambient;	// 環境光への反射強度
+		XMFLOAT4	specular;	// 鏡面反射光への反射強度
+		float		shininess;	// ハイライトの強さ(サイズ)
 	};
 
 	struct CONSTANT_BUFFER
@@ -31,6 +34,8 @@ class Fbx
 		XMMATRIX	matW;			// ワールド変換のみ
 		XMMATRIX	matNormal;		// スケール×平行移動の逆行列
 		XMFLOAT4	diffuseColor;	// 面の色
+		XMFLOAT4	specular;		// 鏡面反射光の情報（Lambertの場合は 0）
+		FLOAT		shininess;		// ハイライトの強さ
 		XMFLOAT4	lightPosition;
 		XMFLOAT4	eyePos;
 		BOOL		isTextured;
@@ -69,6 +74,7 @@ public:
 	void InitIndex(fbxsdk::FbxMesh* mesh);
 	void InitConstantBuffer();
 	void InitMaterial(fbxsdk::FbxNode* pNode);
+	void InitTexture(fbxsdk::FbxSurfaceMaterial* pMaterial, const DWORD& i);
 
 	//void SetFlatColor(XMFLOAT4 col);
 

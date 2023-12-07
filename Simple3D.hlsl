@@ -76,10 +76,10 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 specular = float4(0, 0, 0, 0);
 	
 	// スペキュラーの情報があったら
-	if (specularColor.a != 0) {
-		float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
-		specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
-	}
+	//if (specularColor.a != 0) {
+	//	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
+	//	specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
+	//}
 
 		
 	if (isTexture == false) {

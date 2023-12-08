@@ -4,7 +4,7 @@
 #include "Camera.h"
 #include "Texture.h"
 
-const XMFLOAT4 LIGHT_DERECTION{ 1,5,0,1 };
+const XMFLOAT4 LIGHT_DERECTION{ 1,5,1,1 };
 
 Fbx::Fbx() :vertexCount_(0), polygonCount_(0), materialCount_(0),indexCount_(nullptr),
 pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), pMaterialList_(nullptr)
@@ -269,7 +269,8 @@ void Fbx::Draw(Transform& transform)
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.diffuseColor = pMaterialList_[i].diffuse;
-		cb.specular = pMaterialList_[i].specular;
+		cb.ambientColor = pMaterialList_[i].ambient;
+		cb.specularColor = pMaterialList_[i].specular;
 		cb.shininess = pMaterialList_[i].shininess;
 		cb.lightPosition = LIGHT_DERECTION;
 		XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
@@ -306,14 +307,14 @@ void Fbx::Draw(Transform& transform)
 		Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);	//頂点シェーダー用	
 		Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);	//ピクセルシェーダー用
 
-		if (pMaterialList_[i].pTexture)
+		if (cb.isTextured)
 		{
 			ID3D11SamplerState* pSampler = pMaterialList_[i].pTexture->GetSampler();
 			Direct3D::pContext_->PSSetSamplers(0, 1, &pSampler);
 			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pTexture->GetSRV();
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 		}
-
+		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);
 		//描画
 		Direct3D::pContext_->DrawIndexed(indexCount_[i], 0, 0);
 	}

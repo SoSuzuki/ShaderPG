@@ -11,8 +11,8 @@ SamplerState	g_sampler : register(s0);	//サンプラー
 cbuffer global
 {
 	float4x4	matWVP;			// ワールド・ビュー・プロジェクションの合成行列
+	float4x4	matNormal;		// 法線の変換行列（回転と拡大の逆行列）
 	float4x4	matW;			// ワールド行列
-	float4x4	matNormal;		// ワールド行列	matWから改名
 	float4		vecLightDir;	// ライトの方向ベクトル
 	float4		diffuseColor;	// マテリアルの色 => 拡散反射係数
 	float4		ambientColor;	// 影の色 => 環境反射係数
@@ -29,8 +29,8 @@ struct VS_OUT
 {
 	float4 pos		:	SV_POSITION;	//位置
 	float4 normal	:	TEXCOORD0;
-	float4 eyev		:	TEXCOORD1;		//視点（カメラ位置）
 	float2 uv		:	TEXCOORD2;		//UV座標
+	float4 eyev		:	TEXCOORD1;		//視点（カメラ位置）
 };
 
 //───────────────────────────────────────

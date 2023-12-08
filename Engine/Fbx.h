@@ -34,7 +34,8 @@ class Fbx
 		XMMATRIX	matW;			// ワールド変換のみ
 		XMMATRIX	matNormal;		// スケール×平行移動の逆行列
 		XMFLOAT4	diffuseColor;	// 面の色
-		XMFLOAT4	specular;		// 鏡面反射光の情報（Lambertの場合は 0）
+		XMFLOAT4	ambientColor;	// 環境光
+		XMFLOAT4	specularColor;	// 鏡面反射光の情報（Lambertの場合は 0）
 		FLOAT		shininess;		// ハイライトの強さ
 		XMFLOAT4	lightPosition;
 		XMFLOAT4	eyePos;
@@ -44,8 +45,8 @@ class Fbx
 	struct VERTEX
 	{
 		XMVECTOR position;	//位置
-		XMVECTOR uv;		//UV座標
 		XMVECTOR normal;	//法線
+		XMVECTOR uv;		//UV座標
 	};
 
 	int vertexCount_;	//頂点数

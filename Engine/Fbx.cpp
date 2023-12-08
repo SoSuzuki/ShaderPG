@@ -172,7 +172,7 @@ void Fbx::InitIndex(fbxsdk::FbxMesh* mesh)
 void Fbx::InitConstantBuffer()
 {
 	D3D11_BUFFER_DESC cb;
-	cb.ByteWidth = sizeof(CONSTANT_BUFFER);
+	cb.ByteWidth = sizeof(CBUFF_MODEL);
 	cb.Usage = D3D11_USAGE_DYNAMIC;
 	cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -241,30 +241,24 @@ void Fbx::Draw(Transform& transform)
 	//コンスタントバッファに情報を渡す
 	for (int i = 0; i < materialCount_; i++)
 	{
-		CONSTANT_BUFFER cb;
+		CBUFF_MODEL cb;
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.diffuseColor = pMaterialList_[i].diffuse;
-		cb.lightPosition = LIGHT_DERECTION;
-		XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
+		//cb.lightPosition = LIGHT_DERECTION;
+		//XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
 		cb.isTextured = pMaterialList_[i].pTexture != nullptr;
 
-		//if (i == 1) {
-		//	cb.diffuseColor = XMFLOAT4(1, 1, 1, 1);
-		//	cb.isTextured = pMaterialList_[i].pTexture != nullptr;
-		//}
-
-		//else {
-		//	cb.diffuseColor = pMaterialList_[i].diffuse;
-		//	cb.isTextured = pMaterialList_[i].pTexture != nullptr;
-		//}
-
+		
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
 		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
 
 		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);	//再開
+		
+		//↑四行を一発でやるやつ、エラー出る時もあるらしい
+		//Direct3D::pContext_->UpdateSubresource(pConstantBuffer_, 0, NULL, &cb, 0, 0);
 
 		//頂点バッファ、インデックスバッファ、コンスタントバッファをパイプラインにセット
 		//頂点バッファ
@@ -277,7 +271,7 @@ void Fbx::Draw(Transform& transform)
 		offset = 0;
 		Direct3D::pContext_->IASetIndexBuffer(pIndexBuffer_[i], DXGI_FORMAT_R32_UINT, 0);
 
-		//コンスタントバッファ
+		//コンスタントバッファ	第1引数の番号はレジスタの番号に対応してるらしい
 		Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);	//頂点シェーダー用	
 		Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);	//ピクセルシェーダー用
 

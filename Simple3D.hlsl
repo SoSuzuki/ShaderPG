@@ -14,7 +14,7 @@ cbuffer gmodel:register(b0)
 	float4x4	matW;			// ワールド行列
 	float4x4	matNormal;		// ワールド行列	matWから改名
 	float4		diffuseColor;	// マテリアルの色 => 拡散反射係数
-	bool		isTexture;		// テクスチャ貼ってあるかどうか
+	bool		isTextured;		// テクスチャ貼ってあるかどうか
 };
 
 cbuffer gmodel:register(b1)
@@ -77,7 +77,7 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
 	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
 	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
-	if (isTexture == false) {
+	if (isTextured == false) {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor;
 		// 環境反射色（なんか暗いやつ）

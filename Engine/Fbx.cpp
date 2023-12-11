@@ -173,9 +173,9 @@ void Fbx::InitConstantBuffer()
 {
 	D3D11_BUFFER_DESC cb;
 	cb.ByteWidth = sizeof(CBUFF_MODEL);
-	cb.Usage = D3D11_USAGE_DYNAMIC;
+	cb.Usage = D3D11_USAGE_DEFAULT;	// 2個下のヤツと合わせてこれにしないと動かない 元はDYNAMIC
 	cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cb.CPUAccessFlags = 0;			// D3D11_CPU_ACCESS_WRITE もとのやーつ
 	cb.MiscFlags = 0;
 	cb.StructureByteStride = 0;
 
@@ -251,14 +251,14 @@ void Fbx::Draw(Transform& transform)
 		cb.isTextured = pMaterialList_[i].pTexture != nullptr;
 
 		
-		D3D11_MAPPED_SUBRESOURCE pdata;
-		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
-		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
+		//D3D11_MAPPED_SUBRESOURCE pdata;
+		//Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
+		//memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
 
-		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);	//再開
+		//Direct3D::pContext_->Unmap(pConstantBuffer_, 0);	//再開
 		
 		//↑四行を一発でやるやつ、エラー出る時もあるらしい
-		//Direct3D::pContext_->UpdateSubresource(pConstantBuffer_, 0, NULL, &cb, 0, 0);
+		Direct3D::pContext_->UpdateSubresource(pConstantBuffer_, 0, NULL, &cb, 0, 0);
 
 		//頂点バッファ、インデックスバッファ、コンスタントバッファをパイプラインにセット
 		//頂点バッファ

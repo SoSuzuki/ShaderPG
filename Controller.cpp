@@ -21,25 +21,23 @@ void Controller::Initialize()
 
 void Controller::Update()
 {
+	//if (Input::IsKey(DIK_LEFT)) {
+	//	transform_.rotate_.y -= 1.0f;
+	//}
+	//if (Input::IsKey(DIK_RIGHT)) {
+	//	transform_.rotate_.y += 1.0f;
+	//}
 
-	if (Input::IsKey(DIK_LEFT)) {
-		transform_.rotate_.y -= 1.0f;
-	}
-	if (Input::IsKey(DIK_RIGHT)) {
-		transform_.rotate_.y += 1.0f;
-	}
-
-	if (Input::IsKey(DIK_UP)) {
-		transform_.rotate_.x += 1.0f;
-		if (transform_.rotate_.x > 89)
-			transform_.rotate_.x = 89;
-	}
-	if (Input::IsKey(DIK_DOWN)) {
-		transform_.rotate_.x -= 1.0f;
-		if (transform_.rotate_.x <= 0)
-			transform_.rotate_.x = 0;
-	}
-
+	//if (Input::IsKey(DIK_UP)) {
+	//	transform_.rotate_.x += 1.0f;
+	//	if (transform_.rotate_.x > 89)
+	//		transform_.rotate_.x = 89;
+	//}
+	//if (Input::IsKey(DIK_DOWN)) {
+	//	transform_.rotate_.x -= 1.0f;
+	//	if (transform_.rotate_.x <= 0)
+	//		transform_.rotate_.x = 0;
+	//}
 
 	if (Input::IsKey(DIK_SPACE)) {
 		transform_.position_.y += 0.05f;

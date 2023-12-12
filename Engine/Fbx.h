@@ -23,6 +23,9 @@ class Fbx
 	{
 		Texture* pTexture;
 		XMFLOAT4	diffuse;
+		XMFLOAT4	ambient;
+		XMFLOAT4	specular;
+		float		shininess;
 	};
 
 	struct CBUFF_MODEL

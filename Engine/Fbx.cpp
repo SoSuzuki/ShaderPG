@@ -195,12 +195,26 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 	for (int i = 0; i < materialCount_; i++)
 	{
 		//i番目のマテリアル情報を取得
-		FbxSurfaceMaterial* pMaterial = pNode->GetMaterial(i);
+		//FbxSurfaceMaterial* pMaterial = pNode->GetMaterial(i);
+		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)(pNode->GetMaterial(i));
+		FbxDouble3 diffuse = pPhong->Diffuse;	// 参照:diffuse[0],diffuse[1],diffuse[2]
+		FbxDouble3 ambient = pPhong->Ambient;
+		
+		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
+		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
+
+		if (pPhong->GetClassId().Is(FbxSurfacePhong::ClassId)) {
+			FbxDouble3 specular = pPhong->Specular;
+			FbxDouble shininess = pPhong->Shininess;
+
+			pMaterialList_[i].specular = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
+			pMaterialList_[i].shininess = shininess;
+		}
 
 		//テクスチャ情報
-		FbxProperty  lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+		FbxProperty  lProperty = pPhong->FindProperty(FbxSurfaceMaterial::sDiffuse);
 
-		//テクスチャの数数
+		//テクスチャの数
 		int fileTextureCount = lProperty.GetSrcObjectCount<FbxFileTexture>();
 
 		//テクスチャあり

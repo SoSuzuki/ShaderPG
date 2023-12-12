@@ -19,7 +19,7 @@ void Ball::Initialize()
 
 void Ball::Update()
 {
-	transform_.rotate_.y ++;
+	//transform_.rotate_.y ++;
 }
 
 void Ball::Draw()

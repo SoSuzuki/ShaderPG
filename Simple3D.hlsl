@@ -47,16 +47,16 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
 	outData.uv = uv;
-	//法線を回転
+	// wの情報は入ってて欲しくないので0
 	normal.w = 0;
+	//法線を回転
 	normal = mul(normal, matNormal);
 	outData.normal = normal;
 
 	float4 light = normalize(lightPos);	//光源の座標
-	light = normalize(light);
 
 	outData.color = saturate(dot(normal, light));
-	outData.color.a = 1;
+	//outData.color.a = 1;
 	float4 posw = mul(pos, matW);
 	outData.eyev = eyePos - posw;
 
@@ -74,9 +74,9 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 diffuse;
 	//float4 ambient;
 	// 鏡面反射関連の処理
-	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
+	float4 NL = dot(inData.normal, normalize(lightPos));	// ここのlightPosは逆ベクトル
 	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
-	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
+	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 1000);
 	if (isTextured == false) {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor;

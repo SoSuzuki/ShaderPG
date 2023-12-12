@@ -260,6 +260,9 @@ void Fbx::Draw(Transform& transform)
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.diffuseColor = pMaterialList_[i].diffuse;
+
+		// koko ni specular
+
 		//cb.lightPosition = LIGHT_DERECTION;
 		//XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
 		cb.isTextured = pMaterialList_[i].pTexture != nullptr;

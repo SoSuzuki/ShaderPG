@@ -7,7 +7,7 @@ Controller::Controller(GameObject* parent)
 	:GameObject(parent, "Controller"), isDegOver(false)
 {
 	//transform_.position_ = XMFLOAT3(7.0f, 0.0f, 7.0f);
-	transform_.rotate_.x = 45.0f;
+	//transform_.rotate_.x = 45.0f;
 }
 
 Controller::~Controller()
@@ -51,9 +51,14 @@ void Controller::Update()
 			transform_.position_.y = 0;
 	}
 
-	if (Input::IsKeyDown(DIK_R)) {
-		transform_.position_ = XMFLOAT3(7.0f, 0.0f, 7.0f);
+	if (Input::IsKeyDown(DIK_Q)) {
+		
+		transform_.position_ = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		transform_.rotate_ = XMFLOAT3(45.0f, 0, 0);
+	}
+
+	if (Input::IsKey(DIK_R)) {
+		transform_.rotate_.y++;
 	}
 
 	XMMATRIX mRotX = XMMatrixRotationX(XMConvertToRadians(transform_.rotate_.x));

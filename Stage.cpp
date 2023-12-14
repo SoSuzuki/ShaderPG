@@ -3,12 +3,11 @@
 #include "Engine/Input.h"
 
 namespace {
-	const XMFLOAT4 DEF_LIGHT_POSITION{ 1,2,1,0 };
+	const XMFLOAT4 DEF_LIGHT_POSITION{ 1,2,-1,0 };
 }
 
 Stage::Stage(GameObject* parent)
-	:GameObject(parent, "Player"), hModel_(-1),xSize_(15),zSize_(15), 
-	pCBStage_(nullptr), lightSourcePosition_(DEF_LIGHT_POSITION)
+	:GameObject(parent, "Player"), hModel_(-1),	pCBStage_(nullptr), lightSourcePosition_(DEF_LIGHT_POSITION)
 {
 }
 
@@ -22,7 +21,8 @@ void Stage::Initialize()
 	hModel_ = Model::Load("Assets/Balloon.fbx");
 	assert(hModel_ >= 0);
 	transform_.scale_ = XMFLOAT3(0.1f, 0.1f, 0.1f);
-
+	XMFLOAT4 lightPos = GetLightPos();
+	transform_.position_ = XMFLOAT3(lightPos.x, lightPos.y, lightPos.z);
 	InitConstantBuffer();
 }
 

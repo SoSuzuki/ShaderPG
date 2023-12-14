@@ -194,6 +194,8 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 
 	for (int i = 0; i < materialCount_; i++)
 	{
+		ZeroMemory(&pMaterialList_[i], sizeof(pMaterialList_[i]));
+
 		//i番目のマテリアル情報を取得
 		//FbxSurfaceMaterial* pMaterial = pNode->GetMaterial(i);
 		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)(pNode->GetMaterial(i));
@@ -202,12 +204,13 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 		
 		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
 		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
+		pMaterialList_[i].specular = XMFLOAT4(0, 0, 0, 0);	// 初期化
+		pMaterialList_[i].shininess = 1;	// 0乗だとランバートがおかしくなるから1で初期化
 
-		if (pPhong->GetClassId().Is(FbxSurfacePhong::ClassId)) {
+		if (pPhong->GetClassId().Is(FbxSurfacePhong::ClassId)) {	// 型がPhongなら
 			FbxDouble3 specular = pPhong->Specular;
-			FbxDouble shininess = pPhong->Shininess;
-
 			pMaterialList_[i].specular = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
+			FbxDouble shininess = pPhong->Shininess;
 			pMaterialList_[i].shininess = shininess;
 		}
 
@@ -259,9 +262,13 @@ void Fbx::Draw(Transform& transform)
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
+		
+		// 各種光の情報を代入
 		cb.diffuseColor = pMaterialList_[i].diffuse;
-
-		// koko ni specular
+		cb.ambientColor = pMaterialList_[i].ambient;
+		cb.specularColor = pMaterialList_[i].specular;
+		cb.shininess = pMaterialList_[i].shininess;
+		
 
 		//cb.lightPosition = LIGHT_DERECTION;
 		//XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());

@@ -8,13 +8,12 @@ struct CBUFF_STAGE
     XMFLOAT4    eyePosition;
 };
 
+// 光源の位置を管理、操作(可視化など)するクラス
 class Stage :
     public GameObject
 {
 private:
     int hModel_;    //モデル番号
-    int xSize_;
-    int zSize_;
     ID3D11Buffer* pCBStage_;
     XMFLOAT4 lightSourcePosition_;
 

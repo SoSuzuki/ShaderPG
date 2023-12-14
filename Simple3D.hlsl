@@ -76,7 +76,6 @@ float4 PS(VS_OUT inData) : SV_Target
 	//float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
 	float4 diffuse;
 	float4 ambient;
-	//float4 ambient;
 	// 鏡面反射関連の処理
 	float4 NL = dot(inData.normal, normalize(lightPos));	// ここのlightPosは逆ベクトル
 	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));

@@ -4,9 +4,9 @@
 #include "Camera.h"
 #include "Texture.h"
 
-const XMFLOAT4 LIGHT_DERECTION{ 1,5,1,1 };
+const XMFLOAT4 LIGHT_DERECTION{ 1,5,0,1 };
 
-Fbx::Fbx() :vertexCount_(0), polygonCount_(0), materialCount_(0),indexCount_(nullptr),
+Fbx::Fbx() :vertexCount_(0), polygonCount_(0), materialCount_(0), indexCount_(nullptr),
 pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), pMaterialList_(nullptr)
 {
 }
@@ -190,71 +190,48 @@ void Fbx::InitConstantBuffer()
 
 void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 {
-	// マテリアルバッファの生成
-	materialCount_ = pNode->GetMaterialCount();
 	pMaterialList_ = new MATERIAL[materialCount_];
 
-	for (DWORD i = 0; i < materialCount_; i++) {
-		ZeroMemory(&pMaterialList_[i], sizeof(pMaterialList_[i]));
-
-		// Phongシェーディングを想定したマテリアルバッファの抽出
+	for (int i = 0; i < materialCount_; i++)
+	{
+		//i番目のマテリアル情報を取得
 		FbxSurfaceMaterial* pMaterial = pNode->GetMaterial(i);
-		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pMaterial;
 
-		// 環境光 & 拡散反射光 & 鏡面反射光の反射成分値を取得
-		FbxDouble3 ambient = FbxDouble3(0, 0, 0);
-		FbxDouble3 diffuse = FbxDouble3(0, 0, 0);
-		FbxDouble3 specular = FbxDouble3(0, 0, 0);
-		ambient = pPhong->Ambient;
-		diffuse = pPhong->Diffuse;
+		//テクスチャ情報
+		FbxProperty  lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
 
-		// 環境光 & 拡散反射光 & 鏡面反射光の反射成分値をマテリアルバッファにコピー
-		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
-		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
-		pMaterialList_[i].specular = XMFLOAT4(0, 0, 0, 0);
-		pMaterialList_[i].shininess = 0;
+		//テクスチャの数数
+		int fileTextureCount = lProperty.GetSrcObjectCount<FbxFileTexture>();
 
-		// Maya側で指定したシェーダー(LambertかPhong)のIDを調べてPhongならハイライトの情報を入れる
-		if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId)) {
-			specular = pPhong->Specular;
-			pMaterialList_[i].specular = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
-			pMaterialList_[i].shininess = (float)pPhong->Shininess;
+		//テクスチャあり
+		if (fileTextureCount)
+		{
+			FbxFileTexture* textureInfo = lProperty.GetSrcObject<FbxFileTexture>(0);
+			const char* textureFilePath = textureInfo->GetRelativeFileName();
+
+			//ファイル名+拡張だけにする
+			char name[_MAX_FNAME];	//ファイル名
+			char ext[_MAX_EXT];	//拡張子
+			_splitpath_s(textureFilePath, nullptr, 0, nullptr, 0, name, _MAX_FNAME, ext, _MAX_EXT);
+			wsprintf(name, "%s%s", name, ext);
+
+			//ファイルからテクスチャ作成
+			pMaterialList_[i].pTexture = new Texture;
+			HRESULT hr = pMaterialList_[i].pTexture->Load(name);
+			assert(hr == S_OK);
 		}
 
-		InitTexture(pMaterial, i);
+		//テクスチャ無し
+		else
+		{
+			pMaterialList_[i].pTexture = nullptr;
+
+			//マテリアルの色
+			FbxSurfaceLambert* pMaterial = (FbxSurfaceLambert*)pNode->GetMaterial(i);
+			FbxDouble3  diffuse = pMaterial->Diffuse;
+			pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
+		}
 	}
-}
-
-void Fbx::InitTexture(fbxsdk::FbxSurfaceMaterial* pMaterial, const DWORD& i)
-{
-	pMaterialList_[i].pTexture = nullptr;
-
-	// テクスチャ情報の取得
-	FbxProperty lProperty = pMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
-
-	//テクスチャの数
-	int fileTextureCount = lProperty.GetSrcObjectCount<FbxFileTexture>();
-
-	//テクスチャあり
-	if (fileTextureCount > 0)
-	{
-		FbxFileTexture* textureInfo = lProperty.GetSrcObject<FbxFileTexture>(0);
-		//const char* textureFilePath = textureInfo->GetRelativeFileName();
-
-		//ファイル名+拡張だけにする
-		char name[_MAX_FNAME];	//ファイル名
-		char ext[_MAX_EXT];	//拡張子
-		_splitpath_s(textureInfo->GetRelativeFileName(), nullptr, 0, nullptr, 0, name, _MAX_FNAME, ext, _MAX_EXT);
-		wsprintf(name, "%s%s", name, ext);
-
-		//ファイルからテクスチャ作成
-		pMaterialList_[i].pTexture = new Texture;
-		HRESULT hr = pMaterialList_[i].pTexture->Load(name);
-		assert(hr == S_OK);
-	}
-
-
-
 }
 
 void Fbx::Draw(Transform& transform)
@@ -262,16 +239,13 @@ void Fbx::Draw(Transform& transform)
 	Direct3D::SetShader(SHADER_3D);
 	transform.Calclation();//トランスフォームを計算
 	//コンスタントバッファに情報を渡す
-	for (DWORD i = 0; i < materialCount_; i++)
+	for (int i = 0; i < materialCount_; i++)
 	{
 		CONSTANT_BUFFER cb;
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.diffuseColor = pMaterialList_[i].diffuse;
-		cb.ambientColor = pMaterialList_[i].ambient;
-		cb.specularColor = pMaterialList_[i].specular;
-		cb.shininess = pMaterialList_[i].shininess;
 		cb.lightPosition = LIGHT_DERECTION;
 		XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
 		cb.isTextured = pMaterialList_[i].pTexture != nullptr;
@@ -307,14 +281,14 @@ void Fbx::Draw(Transform& transform)
 		Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);	//頂点シェーダー用	
 		Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);	//ピクセルシェーダー用
 
-		if (cb.isTextured)
+		if (pMaterialList_[i].pTexture)
 		{
 			ID3D11SamplerState* pSampler = pMaterialList_[i].pTexture->GetSampler();
 			Direct3D::pContext_->PSSetSamplers(0, 1, &pSampler);
 			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pTexture->GetSRV();
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 		}
-		Direct3D::pContext_->Unmap(pConstantBuffer_, 0);
+
 		//描画
 		Direct3D::pContext_->DrawIndexed(indexCount_[i], 0, 0);
 	}

@@ -76,10 +76,11 @@ float4 PS(VS_OUT inData) : SV_Target
 	//float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
 	float4 diffuse;
 	float4 ambient;
-	// 鏡面反射関連の処理
-	float4 NL = dot(inData.normal, normalize(lightPos));	// ここのlightPosは逆ベクトル
-	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
-	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), shininess) * specularColor;
+	// 鏡面反射関連の処理	NLもreflectもreflect関数で解決するが、考え方の例としてコメント化
+	//float4 NL = dot(inData.normal, normalize(lightPos));	// ここのlightPosは逆ベクトル
+	//float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
+
+	float4 specular = pow(saturate(dot(reflect(normalize(lightPos),inData.normal), normalize(inData.eyev))), shininess) * specularColor;
 	if (isTextured == false) {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor * inData.color;

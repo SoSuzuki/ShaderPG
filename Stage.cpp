@@ -54,6 +54,26 @@ void Stage::Update()
 		transform_.position_ = XMFLOAT3(margin.x, margin.y, margin.z);
 	}
 
+	// ¸~
+	if (Input::IsKey(DIK_SPACE)) {
+		XMFLOAT4 p = GetLightPos();
+		XMFLOAT4 margin{ p.x + 0.0f,p.y + 0.1f,p.z + 0.0f,p.w + 0.0f };
+		SetLightPos(margin);
+		if (margin.y > 10) {
+			margin.y = 10.0f;
+		}
+		transform_.position_ = XMFLOAT3(margin.x, margin.y, margin.z);
+	}
+	if (Input::IsKey(DIK_LCONTROL)) {
+		XMFLOAT4 p = GetLightPos();
+		XMFLOAT4 margin{ p.x - 0.0f,p.y - 0.1f,p.z - 0.0f,p.w - 0.0f };
+		SetLightPos(margin);
+		if (margin.y < -10) {
+			margin.y = -10.0f;
+		}
+		transform_.position_ = XMFLOAT3(margin.x, margin.y, margin.z);
+	}
+
 	CBUFF_STAGE cb;
 	cb.lightPosition = lightSourcePosition_;
 	XMStoreFloat4(&cb.eyePosition, Camera::GetEyePos());

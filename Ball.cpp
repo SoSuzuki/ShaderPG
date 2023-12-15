@@ -14,7 +14,7 @@ void Ball::Initialize()
 	//モデルデータのロード
 	hModel_ = Model::Load("Assets/BrickDonut.fbx");
 	assert(hModel_ >= 0);
-	transform_.position_ = XMFLOAT3(3.0f, 1.0f, -1.0f);
+	transform_.position_ = XMFLOAT3(0.0f, 1.0f, -1.0f);
 }
 
 void Ball::Update()

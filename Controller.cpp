@@ -54,7 +54,7 @@ void Controller::Update()
 	}
 
 	if (Input::IsKeyDown(DIK_R)) {
-		transform_.position_ = XMFLOAT3(7.0f, 0.0f, 7.0f);
+		transform_.position_ = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		transform_.rotate_ = XMFLOAT3(45.0f, 0, 0);
 	}
 

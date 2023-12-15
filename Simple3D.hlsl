@@ -50,11 +50,13 @@ VS_OUT VS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD)
 	normal = mul(normal, matNormal);
 	outData.normal = normal;
 
-	//視線ベクトル
-	float4 wPos = mul(pos, matW);
-	outData.eyev = normalize(eyePos - wPos);
+	float4 light = normalize(lightPos);	//光源の座標
+	light = normalize(light);
 
-	outData.uv = uv;
+	outData.color = saturate(dot(normal, light));
+	outData.color.a = 1;
+	float4 posw = mul(pos, matW);
+	outData.eyev = eyePos - posw;
 
 	//まとめて出力
 	return outData;
@@ -76,26 +78,22 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 shade = saturate(dot(inData.normal, -lightSource));
 	shade.a = 1;	// 暗いと透明…よってαは強制的に１
 	float4 diffuse;
+	//float4 ambient;
+	// 鏡面反射関連の処理
+	float4 NL = saturate(dot(inData.normal, normalize(lightPos)));
+	float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
+	float4 specular = pow(saturate(dot(reflect, normalize(inData.eyev))), 8);
 	if (isTexture == false) {
-		// マテリアルの色
-		diffuse = diffuseColor;
+		// 拡散反射色（なんか明るいやつ）
+		diffuse = lightSource * diffuseColor;
+		// 環境反射色（なんか暗いやつ）
+		//ambient = lightSource * diffuseColor * ambientSource;
 	}
 	else {
-		// マテリアルの色
-		diffuse = g_texture.Sample(g_sampler, inData.uv);
+		// 拡散反射色（なんか明るいやつ）
+		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv);
+		// 環境反射色（なんか暗いやつ）
+		//ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientSource;
 	}
-
-	// 環境光
-	float4 ambient = ambientColor;	// Maya側で指定したものをそのまま使用
-
-	// 鏡面反射光
-	float4 specular = float4(0, 0, 0, 0);
-	if (specularColor.a != 0) {	// スペキュラーの情報があったら…
-		//float4 NL = saturate(dot(inData.normal, normalize(lightSource)));
-		//float4 reflect = normalize(2 * NL * inData.normal - normalize(lightSource));
-		float4 R = reflect(lightSource, inData.normal);
-		specular = pow(saturate(dot(R, inData.eyev)), shininess) * specularColor;
-	}
-
-	return diffuse * shade + diffuse * ambient + specular;
+	return diffuse * inData.color + diffuse * ambientSource + specular;
 }

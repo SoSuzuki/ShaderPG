@@ -204,7 +204,8 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 		
 		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
 		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
-		pMaterialList_[i].specular = XMFLOAT4(0, 0, 0, 0);	// 初期化
+		// ランバートかフォンかまだ分からないのでとりあえず初期化
+		pMaterialList_[i].specular = XMFLOAT4(0, 0, 0, 0);
 		pMaterialList_[i].shininess = 1;	// 0乗だとランバートがおかしくなるから1で初期化
 
 		if (pPhong->GetClassId().Is(FbxSurfacePhong::ClassId)) {	// 型がPhongなら

@@ -8,11 +8,6 @@
 #include "Ball.h"
 
 
-namespace {
-	const XMFLOAT4 DEF_LIGHT_POSITION{ 1,2,1,0 };
-}
-
-
 TestScene::TestScene(GameObject* parent)
 	:GameObject(parent,"TestScene")
 {

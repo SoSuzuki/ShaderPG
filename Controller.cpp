@@ -40,7 +40,7 @@ void Controller::Update()
 	if (Input::IsKeyDown(DIK_R)) {
 		
 		transform_.position_ = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		//transform_.rotate_ = XMFLOAT3(45.0f, 0, 0);
+		transform_.rotate_ = XMFLOAT3(0.0f, 0, 0);
 	}
 
 	if (Input::IsKey(DIK_E)) {

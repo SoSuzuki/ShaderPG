@@ -81,6 +81,31 @@ float4 PS(VS_OUT inData) : SV_Target
 	//float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
 
 	float4 specular = pow(saturate(dot(reflect(normalize(lightPos),inData.normal), normalize(inData.eyev))), shininess) * specularColor;
+	
+	//拡散反射の値に手を加えてフィルターをかける	/* 自分で考えたポスタリゼーションのやつ → step(0.5, inData.color) */
+#if 1
+	if(inData.color.x < 1 / 3.0){	
+		inData.color = float4(0.3, 0.3, 0.3, 0.3);
+	}
+	else if (inData.color.x < 2 / 3.0) {
+		inData.color = float4(0.5, 0.5, 0.5, 0.5);
+	}
+	else{
+		inData.color = float4(1.0, 1.0, 1.0, 1.0);
+	}
+#else
+	float4 nk;
+	if (inData.color.x < 1 / 3.0) {
+		nk = float4(0.3, 0.3, 0.3, 0.3);
+	}
+	else if (inData.color.x < 2 / 3.0) {
+		nk = float4(0.5, 0.5, 0.5, 0.5);
+	}
+	else {
+		nk = float4(1.0, 1.0, 1.0, 1.0);
+	}
+#endif
+
 	if (isTextured == false) {
 		// 拡散反射色（なんか明るいやつ）
 		diffuse = lightSource * diffuseColor * inData.color;
@@ -95,5 +120,5 @@ float4 PS(VS_OUT inData) : SV_Target
 	}
 
 	return diffuse + ambient + specular;
-	;
+	//return nk;
 }

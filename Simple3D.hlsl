@@ -127,15 +127,15 @@ float4 PS(VS_OUT inData) : SV_Target
 	}
 
 	if (isTextured == false) {
-		// 拡散反射色（なんか明るいやつ）
+		// 拡散反射色
 		diffuse = lightSource * diffuseColor * inData.color;
-		// 環境反射色（なんか暗いやつ）
+		// 環境反射色
 		ambient = lightSource * diffuseColor * ambientColor;
 	}
 	else {
-		// 拡散反射色（なんか明るいやつ）
+		// 拡散反射色
 		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
-		// 環境反射色（なんか暗いやつ）
+		// 環境反射色
 		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientColor;
 	}
 #endif

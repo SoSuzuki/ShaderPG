@@ -59,6 +59,7 @@ class Fbx
 	MATERIAL* pMaterialList_;
 
 	Texture* pTexture_;
+	Texture* pToonTexture_;
 
 public:
 

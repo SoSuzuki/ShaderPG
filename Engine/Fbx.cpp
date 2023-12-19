@@ -7,7 +7,8 @@
 const XMFLOAT4 LIGHT_DERECTION{ 1,5,0,1 };
 
 Fbx::Fbx() :vertexCount_(0), polygonCount_(0), materialCount_(0),indexCount_(nullptr),
-pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), pMaterialList_(nullptr)
+pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), 
+pToonTexture_(nullptr), pMaterialList_(nullptr)
 {
 }
 
@@ -62,6 +63,10 @@ HRESULT Fbx::Load(std::string fileName)
 
 	//マネージャ解放
 	pFbxManager->Destroy();
+
+	pToonTexture_ = new Texture;
+	pToonTexture_->Load("Assets\\toon.png");
+
 	return S_OK;
 }
 
@@ -307,6 +312,10 @@ void Fbx::Draw(Transform& transform)
 			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pTexture->GetSRV();
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 		}
+
+		// ここでセットすることでシェーダーで使用可能に
+		ID3D11ShaderResourceView* pSRVToon = pToonTexture_->GetSRV();
+		Direct3D::pContext_->PSSetShaderResources(1, 1, &pSRVToon);
 
 		//描画
 		Direct3D::pContext_->DrawIndexed(indexCount_[i], 0, 0);

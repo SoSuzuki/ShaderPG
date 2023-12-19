@@ -5,6 +5,7 @@ Texture2D	g_texture : register(t0);	//テクスチャー
 SamplerState	g_sampler : register(s0);	//サンプラー
 
 Texture2D g_toon_texture : register(t1);
+Texture2D g_toon_texture2 : register(t2);
 
 //───────────────────────────────────────
  // コンスタントバッファ
@@ -85,7 +86,7 @@ float4 PS(VS_OUT inData) : SV_Target
 	float4 specular = pow(saturate(dot(reflect(normalize(lightPos),inData.normal), normalize(inData.eyev))), shininess) * specularColor;
 	
 	// この辺で拡散反射の値を…
-/*
+/*	// 計算式でやっちゃうやつ(非推奨)
 	float4 n1 = float4(1 / 4.0, 1 / 4.0, 1 / 4.0, 1);
 	float4 n2 = float4(2 / 4.0, 2 / 4.0, 2 / 4.0, 1);
 	float4 n3 = float4(3 / 4.0, 3 / 4.0, 3 / 4.0, 1);
@@ -94,27 +95,34 @@ float4 PS(VS_OUT inData) : SV_Target
 	float tI = 0.1 * step(n1, inData.color) + 0.3 * step(n2, inData.color)
 		+ 0.3 * step(n3, inData.color) + 0.4 * step(n4, inData.color);
 */
-	float2 uv;	// yはテキトーでいいので0~1の範囲で
+	float2 uv;	
 	uv.x = inData.color.x;
 	uv.y = 0;
 
-	return g_toon_texture.Sample(g_sampler, uv);
+	// tIをそのままreturnして実験
+	float tI = g_toon_texture.Sample(g_sampler, uv);
 
-	//float tI = inData.color * uv;
+	if (isTextured == false) {
+		// 拡散反射色
+		diffuse = lightSource * diffuseColor * tI;
+		// 環境反射色
+		ambient = lightSource * diffuseColor * ambientColor;
+	}
+	else {
+		// 拡散反射色
+		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * tI;
+		// 環境反射色
+		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientColor;
+	}
 
-	//if (isTextured == false) {
-	//	// 拡散反射色
-	//	diffuse = lightSource * diffuseColor * tI;
-	//	// 環境反射色
-	//	ambient = lightSource * diffuseColor * ambientColor;
-	//}
-	//else {
-	//	// 拡散反射色
-	//	diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * tI;
-	//	// 環境反射色
-	//	ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientColor;
-	//}
-
-	////return diffuse + ambient + specular;
+	//return diffuse + ambient + specular;
 	//return diffuse + ambient;
+
+	// 輪郭 = 視線ベクトルと面の法線のなす角度(cos)が90度付近
+	if (abs(dot(normalize(inData.eyev),inData.normal)) < 0.2 )
+		return	float4(0, 0, 0, 0);
+	else
+		return float4(1, 1, 1, 1);
+	// if使わないパターン試行中 
+	//float tJ = g_toon_texture2.Sample(g_sampler, uv)
 }

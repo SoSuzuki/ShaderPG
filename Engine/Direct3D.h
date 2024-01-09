@@ -20,6 +20,9 @@ namespace Direct3D
 	enum SHADER_TYPE {
 		SHADER_2D = 0,
 		SHADER_3D,
+		SHADER_POINT,
+		SHADER_TOON,
+		SHADER_TOONOUT,
 		SHADER_MAX,
 	};
 
@@ -30,6 +33,9 @@ namespace Direct3D
 	HRESULT InitShader();
 	HRESULT InitShader2D();
 	HRESULT InitShader3D();
+	HRESULT InitToonShade();
+	HRESULT InitToonOutline();
+	HRESULT InistShaderPointLight();
 
 	//シェーダーのファイル切り替え
 	void SetShader(SHADER_TYPE type);

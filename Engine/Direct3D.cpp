@@ -155,6 +155,13 @@ HRESULT Direct3D::InitShader()
 		return E_FAIL;
 	}
 
+	if (FAILED(InitToonShade())) {
+		return E_FAIL;
+	}
+
+	if (FAILED(InitToonOutline())) {
+		return E_FAIL;
+	}
 
 	return S_OK;
 }
@@ -272,6 +279,127 @@ HRESULT Direct3D::InitShader3D()
 	}
 
 	return S_OK;
+}
+
+HRESULT Direct3D::InitToonShade()
+{
+	using namespace Direct3D;
+	HRESULT hr;
+	// 頂点シェーダの作成（コンパイル）
+	ID3DBlob* pCompileVS = nullptr;
+	hr = D3DCompileFromFile(L"ToonShade.hlsl", nullptr, nullptr, "VS", "vs_5_0", NULL, 0, &pCompileVS, NULL);
+	assert(pCompileVS != nullptr);	//pCompileVSがNULLじゃなければ通すよ
+
+	hr = pDevice_->CreateVertexShader(pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(),
+		NULL, &(shaderBundle[SHADER_TOON].pVertexShader_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "頂点シェーダの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+
+	//頂点インプットレイアウト
+	D3D11_INPUT_ELEMENT_DESC layout[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },	//位置
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMVECTOR) , D3D11_INPUT_PER_VERTEX_DATA, 0 },//UV座標
+		{ "NORMAL",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMVECTOR) * 2 ,	D3D11_INPUT_PER_VERTEX_DATA, 0 },//法線
+	};
+	hr = pDevice_->CreateInputLayout(layout, 3, pCompileVS->GetBufferPointer(),
+		pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_TOON].pVertexLayout_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "頂点インプットレイアウトの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+	SAFE_RELEASE(pCompileVS);	//安全な解放処理
+
+	// ピクセルシェーダの作成（コンパイル）
+	ID3DBlob* pCompilePS = nullptr;
+	hr = D3DCompileFromFile(L"ToonShade.hlsl", nullptr, nullptr, "PS", "ps_5_0", NULL, 0, &pCompilePS, NULL);
+	assert(pCompilePS != nullptr);
+
+	hr = pDevice_->CreatePixelShader(pCompilePS->GetBufferPointer(), pCompilePS->GetBufferSize(),
+		NULL, &(shaderBundle[SHADER_TOON].pPixelShader_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "ピクセルシェーダの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+	SAFE_RELEASE(pCompilePS);	//安全な解放処理
+
+	//ラスタライザ作成
+	D3D11_RASTERIZER_DESC rdc = {};
+	rdc.CullMode = D3D11_CULL_BACK;		//あえて裏返す
+	rdc.FillMode = D3D11_FILL_SOLID;	//SOLID -> 塗りつぶし　WIREFRAME -> ワイヤフレーム
+	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
+	//陰面消去ってやつ
+	hr = pDevice_->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_TOON].pRasterizerState_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "ラスタライザの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+
+	return S_OK;
+}
+
+HRESULT Direct3D::InitToonOutline()
+{
+	using namespace Direct3D;
+	HRESULT hr;
+	// 頂点シェーダの作成（コンパイル）
+	ID3DBlob* pCompileVS = nullptr;
+	hr = D3DCompileFromFile(L"ToonOutline.hlsl", nullptr, nullptr, "VS", "vs_5_0", NULL, 0, &pCompileVS, NULL);
+	assert(pCompileVS != nullptr);	//pCompileVSがNULLじゃなければ通すよ
+
+	hr = pDevice_->CreateVertexShader(pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(),
+		NULL, &(shaderBundle[SHADER_TOONOUT].pVertexShader_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "頂点シェーダの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+
+	//頂点インプットレイアウト
+	D3D11_INPUT_ELEMENT_DESC layout[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },	//位置
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMVECTOR) , D3D11_INPUT_PER_VERTEX_DATA, 0 },//UV座標
+		{ "NORMAL",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMVECTOR) * 2 ,	D3D11_INPUT_PER_VERTEX_DATA, 0 },//法線
+	};
+	hr = pDevice_->CreateInputLayout(layout, 3, pCompileVS->GetBufferPointer(),
+		pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_TOONOUT].pVertexLayout_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "頂点インプットレイアウトの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+	SAFE_RELEASE(pCompileVS);	//安全な解放処理
+
+	// ピクセルシェーダの作成（コンパイル）
+	ID3DBlob* pCompilePS = nullptr;
+	hr = D3DCompileFromFile(L"ToonOutline.hlsl", nullptr, nullptr, "PS", "ps_5_0", NULL, 0, &pCompilePS, NULL);
+	assert(pCompilePS != nullptr);
+
+	hr = pDevice_->CreatePixelShader(pCompilePS->GetBufferPointer(), pCompilePS->GetBufferSize(),
+		NULL, &(shaderBundle[SHADER_TOONOUT].pPixelShader_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "ピクセルシェーダの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+	SAFE_RELEASE(pCompilePS);	//安全な解放処理
+
+	//ラスタライザ作成
+	D3D11_RASTERIZER_DESC rdc = {};
+	rdc.CullMode = D3D11_CULL_FRONT;		//あえて裏返す
+	rdc.FillMode = D3D11_FILL_SOLID;	//SOLID -> 塗りつぶし　WIREFRAME -> ワイヤフレーム
+	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
+	//陰面消去ってやつ
+	hr = pDevice_->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_TOONOUT].pRasterizerState_));
+	if (FAILED(hr)) {
+		MessageBox(nullptr, "ラスタライザの作成に失敗しました", "エラー", MB_OK);
+		return hr;
+	}
+
+	return S_OK;
+}
+
+HRESULT Direct3D::InistShaderPointLight()
+{
+	return E_NOTIMPL;
 }
 
 void Direct3D::SetShader(SHADER_TYPE type)

@@ -66,8 +66,9 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	return outData;
 }
 
+#if 0
 //───────────────────────────────────────
-// ピクセルシェーダ
+// ピクセルシェーダ		これ単体で輪郭出せる Direct3DのInitのモードはBACK
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
@@ -106,3 +107,12 @@ float4 PS(VS_OUT inData) : SV_Target
 	// if使わないパターン試行中 
 	//float tJ = g_toon_texture2.Sample(g_sampler, uv)
 }
+#else
+//───────────────────────────────────────
+// ピクセルシェーダ		シェーダー2つ使って描画するやつ モードはFRONT
+//───────────────────────────────────────
+float4 PS(VS_OUT inData) : SV_Target
+{
+	return	float4(0, 0, 0, 1);
+}
+#endif

@@ -325,6 +325,8 @@ void Fbx::Draw(Transform& transform)
 
 		//•`‰æ
 		Direct3D::pContext_->DrawIndexed(indexCount_[i], 0, 0);
+
+		Direct3D::SetShader(SHADER_TOON);
 	}
 
 }

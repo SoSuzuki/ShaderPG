@@ -4,9 +4,6 @@
 Texture2D	g_texture : register(t0);	//テクスチャー
 SamplerState	g_sampler : register(s0);	//サンプラー
 
-Texture2D g_toon_texture : register(t1);
-Texture2D g_toon_texture2 : register(t2);
-
 //───────────────────────────────────────
  // コンスタントバッファ
 // DirectX 側から送信されてくる、ポリゴン頂点以外の諸情報の定義
@@ -49,16 +46,20 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 {
 	//ピクセルシェーダーへ渡す情報
 	VS_OUT outData = (VS_OUT)0;
-	pos = pos + normal * 0.05;
+	//ローカル座標に、ワールド・ビュー・プロジェクション行列をかけて
+	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
 	outData.uv = uv;
+	// wの情報は入ってて欲しくないので0 => 平行移動込みだと変な方向に向いてしまう
 	normal.w = 0;
+	//法線を回転
 	normal = mul(normal, matNormal);
 	outData.normal = normal;
 
 	float4 light = normalize(lightPos);	//光源の座標
 
 	outData.color = saturate(dot(normal, light));
+	//outData.color.a = 1;
 	float4 posw = mul(pos, matW);
 	outData.eyev = eyePos - posw;
 
@@ -66,53 +67,33 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	return outData;
 }
 
-#if 1
 //───────────────────────────────────────
-// ピクセルシェーダ		これ単体で輪郭出せる Direct3DのInitのモードはBACK
+// ピクセルシェーダ
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
 	float4 lightSource = float4(1.0,1.0,1.0,1.0);
-
+	//float4 ambientSource = float4(0.2, 0.2, 0.2, 1.0);
 	float4 diffuse;
 	float4 ambient;
+	// 鏡面反射関連の処理	NLもreflectもreflect関数で解決するが、考え方の例としてコメント化
+	//float4 NL = dot(inData.normal, normalize(lightPos));	// ここのlightPosは逆ベクトル
+	//float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
+
 	float4 specular = pow(saturate(dot(reflect(normalize(lightPos),inData.normal), normalize(inData.eyev))), shininess) * specularColor;
-
-	float2 uv;
-	uv.x = inData.color.x;
-	uv.y = 0;
-
-	// tIをそのままreturnして実験
-	float tI = g_toon_texture.Sample(g_sampler, uv);
-
 	if (isTextured == false) {
 		// 拡散反射色
-		diffuse = lightSource * diffuseColor * tI;
+		diffuse = lightSource * diffuseColor * inData.color;
 		// 環境反射色
 		ambient = lightSource * diffuseColor * ambientColor;
 	}
 	else {
 		// 拡散反射色
-		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * tI;
+		diffuse = lightSource * g_texture.Sample(g_sampler, inData.uv) * inData.color;
 		// 環境反射色
 		ambient = lightSource * g_texture.Sample(g_sampler, inData.uv) * ambientColor;
 	}
 
-	// 輪郭 = 視線ベクトルと面の法線のなす角度(cos)が90度付近
-	if (abs(dot(normalize(inData.eyev),inData.normal)) < 0.2)
-		return	float4(0, 0, 0, 1);
-	else
-		return diffuse + ambient;
-
-	// if使わないパターン試行中 
-	//float tJ = g_toon_texture2.Sample(g_sampler, uv)
+	return diffuse + ambient + specular;
+	;
 }
-#else
-//───────────────────────────────────────
-// ピクセルシェーダ		シェーダー2つ使って描画するやつ モードはFRONT
-//───────────────────────────────────────
-float4 PS(VS_OUT inData) : SV_Target
-{
-	return	float4(0, 0, 0, 1);
-}
-#endif

@@ -262,7 +262,8 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 
 void Fbx::Draw(Transform& transform)
 {
-	Direct3D::SetShader(SHADER_TOONOUT);	// ここでシェーダー切り替え
+	//Direct3D::SetShader(SHADER_TOONOUT);	// ここでシェーダー切り替え
+	Direct3D::SetShader(SHADER_NORMALMAP);
 
 	transform.Calclation();//トランスフォームを計算
 	//コンスタントバッファに情報を渡す
@@ -326,7 +327,7 @@ void Fbx::Draw(Transform& transform)
 		//描画
 		Direct3D::pContext_->DrawIndexed(indexCount_[i], 0, 0);
 
-		Direct3D::SetShader(SHADER_TOON);
+		//Direct3D::SetShader(SHADER_TOON);
 	}
 
 }

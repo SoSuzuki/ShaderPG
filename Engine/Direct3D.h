@@ -23,6 +23,7 @@ namespace Direct3D
 		SHADER_POINT,
 		SHADER_TOON,
 		SHADER_TOONOUT,
+		SHADER_NORMALMAP,
 		SHADER_MAX,
 	};
 
@@ -35,6 +36,7 @@ namespace Direct3D
 	HRESULT InitShader3D();
 	HRESULT InitToonShade();
 	HRESULT InitToonOutline();
+	HRESULT InitNormalMapRenderer();
 	HRESULT InistShaderPointLight();
 
 	//シェーダーのファイル切り替え

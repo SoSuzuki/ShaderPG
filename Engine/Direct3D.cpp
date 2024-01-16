@@ -407,11 +407,11 @@ HRESULT Direct3D::InitNormalMapRenderer()
 	HRESULT hr;
 	// 頂点シェーダの作成（コンパイル）
 	ID3DBlob* pCompileVS = nullptr;
-	hr = D3DCompileFromFile(L"Simple3D.hlsl", nullptr, nullptr, "VS", "vs_5_0", NULL, 0, &pCompileVS, NULL);
+	hr = D3DCompileFromFile(L"NormalMapping.hlsl", nullptr, nullptr, "VS", "vs_5_0", NULL, 0, &pCompileVS, NULL);
 	assert(pCompileVS != nullptr);	//pCompileVSがNULLじゃなければ通すよ
 
 	hr = pDevice_->CreateVertexShader(pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(),
-		NULL, &(shaderBundle[SHADER_3D].pVertexShader_));
+		NULL, &(shaderBundle[SHADER_NORMALMAP].pVertexShader_));
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "頂点シェーダの作成に失敗しました", "エラー", MB_OK);
 		return hr;
@@ -419,13 +419,13 @@ HRESULT Direct3D::InitNormalMapRenderer()
 
 	//頂点インプットレイアウト
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
-		{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,					D3D11_INPUT_PER_VERTEX_DATA, 0 },//位置
-		{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,	0, sizeof(XMVECTOR) ,	D3D11_INPUT_PER_VERTEX_DATA, 0 },//UV座標
-		{ "NORMAL",	 0,DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMVECTOR) * 2,D3D11_INPUT_PER_VERTEX_DATA, 0 },//法線
-		{ "TANGENT", 0,DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(XMVECTOR) * 3,D3D11_INPUT_PER_VERTEX_DATA, 0 } //接線
+		{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },//位置
+		{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },//UV座標
+		{ "NORMAL",	 0,DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },//法線
+		{ "TANGENT", 0,DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 } //接線
 	};
-	hr = pDevice_->CreateInputLayout(layout, 3, pCompileVS->GetBufferPointer(),
-		pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_3D].pVertexLayout_));
+	hr = pDevice_->CreateInputLayout(layout, sizeof(layout)/sizeof(D3D11_INPUT_ELEMENT_DESC), pCompileVS->GetBufferPointer(),
+		pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_NORMALMAP].pVertexLayout_));
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "頂点インプットレイアウトの作成に失敗しました", "エラー", MB_OK);
 		return hr;
@@ -434,11 +434,11 @@ HRESULT Direct3D::InitNormalMapRenderer()
 
 	// ピクセルシェーダの作成（コンパイル）
 	ID3DBlob* pCompilePS = nullptr;
-	hr = D3DCompileFromFile(L"Simple3D.hlsl", nullptr, nullptr, "PS", "ps_5_0", NULL, 0, &pCompilePS, NULL);
+	hr = D3DCompileFromFile(L"NormalMapping.hlsl", nullptr, nullptr, "PS", "ps_5_0", NULL, 0, &pCompilePS, NULL);
 	assert(pCompilePS != nullptr);
 
 	hr = pDevice_->CreatePixelShader(pCompilePS->GetBufferPointer(), pCompilePS->GetBufferSize(),
-		NULL, &(shaderBundle[SHADER_3D].pPixelShader_));
+		NULL, &(shaderBundle[SHADER_NORMALMAP].pPixelShader_));
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "ピクセルシェーダの作成に失敗しました", "エラー", MB_OK);
 		return hr;
@@ -450,8 +450,8 @@ HRESULT Direct3D::InitNormalMapRenderer()
 	rdc.CullMode = D3D11_CULL_BACK;		//NONE -> ポリゴンの裏側でも関係なく描画（重くなる）
 	rdc.FillMode = D3D11_FILL_SOLID;	//SOLID -> 塗りつぶし　WIREFRAME -> ワイヤフレーム
 	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
-	//陰面消去ってやつ
-	hr = pDevice_->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_3D].pRasterizerState_));
+	//陰面消去
+	hr = pDevice_->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_NORMALMAP].pRasterizerState_));
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "ラスタライザの作成に失敗しました", "エラー", MB_OK);
 		return hr;

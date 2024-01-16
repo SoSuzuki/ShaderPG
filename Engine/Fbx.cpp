@@ -105,6 +105,18 @@ void Fbx::InitVertex(fbxsdk::FbxMesh* mesh)
 		}
 	}
 
+
+	for (int i = 0; i < polygonCount_; i++) {
+		int sIndex = mesh->GetPolygonVertexIndex(i);	// 与えられた3個組のインデックスの最初を取得
+		FbxGeometryElementTangent* tangent = mesh->GetElementTangent(0);
+		FbxVector4 vTangent = tangent->GetDirectArray().GetAt(sIndex).mData;
+		for (int j = 0; j < 3; j++) {
+			int index = mesh->GetPolygonVertices()[sIndex + j];
+			vertices[index].tangent
+				= { (float)vTangent[0], (float)vTangent[1], (float)vTangent[2], (float)vTangent[3] };
+		}
+	}
+
 	//頂点バッファ
 	HRESULT hr;
 	D3D11_BUFFER_DESC bd_vertex;
@@ -209,7 +221,7 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)(pNode->GetMaterial(i));
 		FbxDouble3 diffuse = pPhong->Diffuse;	// 参照:diffuse[0],diffuse[1],diffuse[2]
 		FbxDouble3 ambient = pPhong->Ambient;
-		
+
 		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
 		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
 		// ランバートかフォンかまだ分からないのでとりあえず初期化
@@ -220,9 +232,10 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 			FbxDouble3 specular = pPhong->Specular;
 			pMaterialList_[i].specular = XMFLOAT4((float)specular[0], (float)specular[1], (float)specular[2], 1.0f);
 			FbxDouble shininess = pPhong->Shininess;
-			pMaterialList_[i].shininess = shininess;
+			pMaterialList_[i].shininess = (float)shininess;
 		}
 
+	// 通常のテクスチャ
 		//テクスチャ情報
 		FbxProperty  lProperty = pPhong->FindProperty(FbxSurfaceMaterial::sDiffuse);
 
@@ -257,7 +270,44 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 			FbxDouble3  diffuse = pMaterial->Diffuse;
 			pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
 		}
+
+	// ノーマルマップ用テクスチャ
+		//テクスチャ情報
+		FbxSurfaceLambert* pNMaterial = nullptr;
+		lProperty = pNMaterial->FindProperty(FbxSurfaceMaterial::sNormalMap);
+
+		//テクスチャの数
+		int fileNormalTextureCount = lProperty.GetSrcObjectCount<FbxFileTexture>();
+
+		//テクスチャあり
+		if (fileTextureCount)
+		{
+			FbxFileTexture* textureInfo = lProperty.GetSrcObject<FbxFileTexture>(0);
+			const char* textureFilePath = textureInfo->GetRelativeFileName();
+
+			//ファイル名+拡張だけにする
+			char name[_MAX_FNAME];	//ファイル名
+			char ext[_MAX_EXT];	//拡張子
+			_splitpath_s(textureFilePath, nullptr, 0, nullptr, 0, name, _MAX_FNAME, ext, _MAX_EXT);
+			wsprintf(name, "%s%s", name, ext);
+
+			//ファイルからテクスチャ作成
+			pMaterialList_[i].pNormalTexture = new Texture;
+			HRESULT hr = pMaterialList_[i].pTexture->Load(name);
+			assert(hr == S_OK);
+		}
+
+		//テクスチャ無し
+		else
+		{
+			pMaterialList_[i].pTexture = nullptr;
+
+			//マテリアルの色
+
+		}
+
 	}
+
 }
 
 void Fbx::Draw(Transform& transform)
@@ -316,6 +366,11 @@ void Fbx::Draw(Transform& transform)
 			Direct3D::pContext_->PSSetSamplers(0, 1, &pSampler);
 			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pTexture->GetSRV();
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
+		}
+		if (pMaterialList_[i].pNormalTexture) 
+		{
+			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pNormalTexture->GetSRV();
+			Direct3D::pContext_->PSSetShaderResources(2, 1, &pSRV);
 		}
 
 		// ここでセットすることでシェーダーで使用可能に

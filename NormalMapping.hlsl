@@ -1,8 +1,9 @@
 //───────────────────────────────────────
 // テクスチャ＆サンプラーデータのグローバル変数定義
 //───────────────────────────────────────
-Texture2D	g_texture : register(t0);	//テクスチャー
+Texture2D		g_texture : register(t0);	//テクスチャー
 SamplerState	g_sampler : register(s0);	//サンプラー
+Texture2D		normalTex : register(t1);
 
 //───────────────────────────────────────
  // コンスタントバッファ
@@ -17,7 +18,8 @@ cbuffer gmodel:register(b0)
 	float4		ambientColor;	// 環境光
 	float4		specularColor;	// 鏡面反射光
 	float		shininess;
-	bool		isTextured;		// テクスチャ貼ってあるかどうか
+	int			hasTexture;		// テクスチャ貼ってあるかどうか
+	int			hasNormalMap;	// ノーマルマップがあるかどうか
 };
 
 cbuffer gmodel:register(b1)
@@ -32,36 +34,51 @@ cbuffer gmodel:register(b1)
 struct VS_OUT
 {
 	float4 pos		:	SV_POSITION;	//位置
-	float4 color	:	COLOR;			//色->輝度（明るさ）
-	float4 eyev		:	POSITION1;		//視点（カメラ位置）
-	float4 normal	:	POSITION2;
+	float4 eyev		:	POSITION;		//ワールド座標に変換された視線ベクトル
+	float4 Neyev	:	POSITION1;		//ノーマルマップ用の接空間に変換された視線ベクトル
+	float4 normal	:	POSITION2;		//法線ベクトル
 	float4 light	:	POSITION3;
+	float4 color	:	POSITION4;		//色->輝度（明るさ）
 	float2 uv		:	TEXCOORD;		//UV座標
 };
 
 //───────────────────────────────────────
 // 頂点シェーダ
 //───────────────────────────────────────
-VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
+VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL, float4 tangent : TANGENT)
 {
 	//ピクセルシェーダーへ渡す情報
 	VS_OUT outData = (VS_OUT)0;
+
 	//ローカル座標に、ワールド・ビュー・プロジェクション行列をかけて
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	outData.pos = mul(pos, matWVP);
 	outData.uv = uv;
+
+	float3  binormal = cross(normal, tangent);
+
 	// wの情報は入ってて欲しくないので0 => 平行移動込みだと変な方向に向いてしまう
 	normal.w = 0;
 	//法線を回転
 	normal = mul(normal, matNormal);
+	normal = normalize(normal);	//法線ベクトルをローカル座標に変換したやつ
 	outData.normal = normal;
 
-	float4 light = normalize(lightPos);	//光源の座標
+	tangent.w = 0;
+	//法線を回転
+	tangent = mul(normal, matNormal);
+	normal = normalize(normal);	//法線ベクトルをローカル座標に変換したやつ
 
-	outData.color = saturate(dot(normal, light));
-	//outData.color.a = 1;
+	binormal = mul(binormal, matNormal);
+	binormal = normalize(binormal);
+
 	float4 posw = mul(pos, matW);
 	outData.eyev = eyePos - posw;
+
+	outData.Neyev.x = dot(outData.eyev, tangent);
+	outData.Neyev.y = dot(outData.eyev, binormal);
+	outData.Neyev.z = dot(outData.eyev, normal);
+	outData.Neyev.w = 0;
 
 	//まとめて出力
 	return outData;
@@ -81,7 +98,7 @@ float4 PS(VS_OUT inData) : SV_Target
 	//float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
 
 	float4 specular = pow(saturate(dot(reflect(normalize(lightPos),inData.normal), normalize(inData.eyev))), shininess) * specularColor;
-	if (isTextured == false) {
+	if (hasTexture == false) {
 		// 拡散反射色
 		diffuse = lightSource * diffuseColor * inData.color;
 		// 環境反射色

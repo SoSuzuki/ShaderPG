@@ -139,8 +139,10 @@ float4 PS(VS_OUT inData) : SV_Target
 
 		float4 NL = clamp(dot(tmpNormal, inData.light), 0, 1);
 
-		float4 reflection = reflect(-inData.light, tmpNormal);
-		float4 specular = pow(saturate(dot(reflection, inData.Neyev)), shininess) * specularColor;
+		float4 light = normalize(lightPos);
+		light = normalize(light);
+		float4 reflection = reflect(light, tmpNormal);
+		float4 specular = pow(saturate(dot(reflection, inData.Neyev)), 2) * specularColor;
 
 		if (hasTexture != 0)
 		{

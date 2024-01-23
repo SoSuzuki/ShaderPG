@@ -119,13 +119,4 @@ float4 PS(VS_OUT inData) : SV_Target
 	//return diffuse + ambient + specular;
 	return diffuse + ambient;
 
-
-	// 輪郭 = 視線ベクトルと面の法線のなす角度(cos)が90度付近
-	//if (abs(dot(normalize(inData.eyev),inData.normal)) < 0.2)
-	//	return	float4(0, 0, 0, 1);
-	//else
-	//	return float4(1, 1, 1, 1);
-
-	// if使わないパターン試行中 
-	//float tJ = g_toon_texture2.Sample(g_sampler, uv)
 }

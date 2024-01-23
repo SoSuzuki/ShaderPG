@@ -384,9 +384,9 @@ HRESULT Direct3D::InitToonOutline()
 
 	//ラスタライザ作成
 	D3D11_RASTERIZER_DESC rdc = {};
-	rdc.CullMode = D3D11_CULL_FRONT;		//あえて裏返す
+	rdc.CullMode = D3D11_CULL_BACK;		//あえて裏返す
 	rdc.FillMode = D3D11_FILL_SOLID;	//SOLID -> 塗りつぶし　WIREFRAME -> ワイヤフレーム
-	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
+	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているから…
 	//陰面消去ってやつ
 	hr = pDevice_->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_TOONOUT].pRasterizerState_));
 	if (FAILED(hr)) {

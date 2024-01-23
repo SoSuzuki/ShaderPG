@@ -66,7 +66,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	return outData;
 }
 
-#if 0
+#if 1
 //───────────────────────────────────────
 // ピクセルシェーダ		これ単体で輪郭出せる(というより縁をつけただけ) Direct3DのInitのモードはBACK
 //───────────────────────────────────────

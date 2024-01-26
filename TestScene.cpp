@@ -6,6 +6,7 @@
 #include "Stage.h"
 #include "Arrow.h"
 #include "Ball.h"
+#include "Dice.h"
 
 
 TestScene::TestScene(GameObject* parent)
@@ -23,6 +24,7 @@ void TestScene::Initialize()
 	Instantiate<Arrow>(this);
 	Instantiate<Ball>(this);
 	Instantiate<Controller>(this);
+	Instantiate<Dice>(this);
 }
 
 void TestScene::Update()

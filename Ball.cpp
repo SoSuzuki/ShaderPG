@@ -12,12 +12,11 @@ Ball::~Ball()
 void Ball::Initialize()
 {
 	//モデルデータのロード
-	//hModel_ = Model::Load("Assets/RedDice.fbx");
 	hModel_ = Model::Load("Assets/Ball2.fbx");
 	//hModel_ = Model::Load("Assets/BrickDonutSpecular.fbx"); 
 	assert(hModel_ >= 0);
-	transform_.scale_ = XMFLOAT3(3.0f, 3.0f, 3.0f);
-	//transform_.position_ = XMFLOAT3(3.0f, 1.0f, -1.0f);
+	//transform_.scale_ = XMFLOAT3(3.0f, 3.0f, 3.0f);
+	transform_.position_ = XMFLOAT3(3.0f, 1.0f, -1.0f);
 }
 
 void Ball::Update()

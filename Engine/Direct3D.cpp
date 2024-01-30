@@ -130,10 +130,12 @@ HRESULT Direct3D::Initialize(int winW, int winH, HWND hWnd)
 	ZeroMemory(&BlendDesc, sizeof(BlendDesc));
 	BlendDesc.AlphaToCoverageEnable = FALSE;
 	BlendDesc.IndependentBlendEnable = FALSE;
-	BlendDesc.RenderTarget[0].BlendEnable = TRUE;
-	BlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	BlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	BlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+
+	BlendDesc.RenderTarget[0].BlendEnable = TRUE;					//半透明使うかどうか
+	BlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;		//今描画しようとしてるもの
+	BlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_COLOR;//既に描画されてるもの	INV->Inverse
+	BlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;			//どう計算するか(ADDだから足し算)
+	
 	BlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	BlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	BlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
@@ -468,7 +470,7 @@ HRESULT Direct3D::InitNormalMapRenderer()
 
 	//ラスタライザ作成
 	D3D11_RASTERIZER_DESC rdc = {};
-	rdc.CullMode = D3D11_CULL_BACK;		//NONE -> ポリゴンの裏側でも関係なく描画（重くなる）
+	rdc.CullMode = D3D11_CULL_NONE;		//NONE -> ポリゴンの裏側でも関係なく描画（重くなる） BACK -> 裏面を描画しない
 	rdc.FillMode = D3D11_FILL_SOLID;	//SOLID -> 塗りつぶし　WIREFRAME -> ワイヤフレーム
 	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
 	//陰面消去

@@ -132,8 +132,8 @@ HRESULT Direct3D::Initialize(int winW, int winH, HWND hWnd)
 	BlendDesc.IndependentBlendEnable = FALSE;
 
 	BlendDesc.RenderTarget[0].BlendEnable = TRUE;					//”¼“§–¾Žg‚¤‚©‚Ç‚¤‚©
-	BlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;		//¡•`‰æ‚µ‚æ‚¤‚Æ‚µ‚Ä‚é‚à‚Ì
-	BlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_COLOR;//Šù‚É•`‰æ‚³‚ê‚Ä‚é‚à‚Ì	INV->Inverse
+	BlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;		//¡•`‰æ‚µ‚æ‚¤‚Æ‚µ‚Ä‚é‚à‚Ì
+	BlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;//Šù‚É•`‰æ‚³‚ê‚Ä‚é‚à‚Ì	INV->Inverse
 	BlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;			//‚Ç‚¤ŒvŽZ‚·‚é‚©(ADD‚¾‚©‚ç‘«‚µŽZ)
 	
 	BlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;

@@ -7,6 +7,7 @@
 #include "Arrow.h"
 #include "Ball.h"
 #include "Dice.h"
+#include "Water.h"
 
 
 TestScene::TestScene(GameObject* parent)
@@ -25,6 +26,7 @@ void TestScene::Initialize()
 	Instantiate<Ball>(this);
 	Instantiate<Controller>(this);
 	Instantiate<Dice>(this);
+	Instantiate<Water>(this);
 }
 
 void TestScene::Update()

@@ -14,7 +14,6 @@ Controller::~Controller()
 
 void Controller::Initialize()
 {
-
 }
 
 void Controller::Update()
@@ -78,8 +77,8 @@ void Controller::Update()
 	XMVECTOR vCam = { 0, 0, -10, 0 };
 	vCam = XMVector3TransformCoord(vCam, mRotX * mRotY * mRotZ);
 
-	Camera::SetPosition(vPos + vCam);       
-	Camera::SetTarget(transform_.position_);
+	//Camera::SetPosition(vPos + vCam);
+	//Camera::SetTarget(transform_.position_);
 }
 
 void Controller::Draw()

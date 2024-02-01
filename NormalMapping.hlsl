@@ -155,6 +155,7 @@ float4 PS(VS_OUT inData) : SV_Target
 			ambient = diffuseColor * ambientColor;
 		}
 		return diffuse + ambient + specular;
+		//return g_texture.Sample(g_sampler, inData.uv);
 	}
 	else
 	{

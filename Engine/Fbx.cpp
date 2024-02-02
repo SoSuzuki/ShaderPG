@@ -326,8 +326,6 @@ void Fbx::Draw(Transform& transform)
 		cb.shininess = pMaterialList_[i].shininess;
 		
 
-		//cb.lightPosition = LIGHT_DERECTION;
-		//XMStoreFloat4(&cb.eyePos, Camera::GetEyePos());
 		cb.hasTexture = pMaterialList_[i].pTexture != nullptr;
 		cb.hasNormalMap = pMaterialList_[i].pNormalMap != nullptr;
 		

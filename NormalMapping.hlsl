@@ -82,7 +82,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL, f
 
 	float4 light = normalize(lightPos);
 	light.w = 0;
-	light = normalize(light);
+	//light = normalize(light);
 
 	outData.color = mul(light, outData.normal);
 	outData.color.w = 0.0;
@@ -139,9 +139,9 @@ float4 PS(VS_OUT inData) : SV_Target
 
 		float4 NL = clamp(dot(tmpNormal, inData.light), 0, 1);
 
-		float4 light = normalize(lightPos);
-		light = normalize(light);
-		float4 reflection = reflect(light, tmpNormal);
+		//float4 light = normalize(lightPos);
+		//light = normalize(light);
+		float4 reflection = reflect(inData.light, tmpNormal);
 		float4 specular = pow(saturate(dot(reflection, inData.Neyev)), 2) * specularColor;
 
 		if (hasTexture != 0)

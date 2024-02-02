@@ -25,8 +25,8 @@ void TestScene::Initialize()
 	Instantiate<Arrow>(this);
 	Instantiate<Ball>(this);
 	Instantiate<Controller>(this);
-	Instantiate<Dice>(this);
 	Instantiate<Water>(this);
+	Instantiate<Dice>(this);
 }
 
 void TestScene::Update()

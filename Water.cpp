@@ -11,7 +11,7 @@ Water::~Water()
 
 void Water::Initialize()
 {
-	hModel_ = Model::Load("Assets/WaterSurface.fbx");
+	hModel_ = Model::Load("Assets/WaterSurface2.fbx");
 	assert(hModel_ >= 0);
 
 }

@@ -22,10 +22,10 @@ TestScene::~TestScene()
 void TestScene::Initialize()
 {
 	Instantiate<Stage>(this);
-	Instantiate<Arrow>(this);
+	//Instantiate<Arrow>(this);
 	Instantiate<Ball>(this);
 	Instantiate<Controller>(this);
-	Instantiate<Water>(this);
+	//Instantiate<Water>(this);
 	Instantiate<Dice>(this);
 }
 

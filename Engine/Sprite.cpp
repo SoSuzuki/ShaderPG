@@ -29,18 +29,53 @@ HRESULT Sprite::Initialize()
 
 void Sprite::Draw(Transform& transform)
 {
-	static float scroll = 0.0f;
-	scroll += 0.01f;
-
 	Direct3D::SetShader(Direct3D::SHADER_2D);
-	UINT stride = sizeof(VERTEX);
-	UINT;
 	transform.Calclation();	//トランスフォームを計算
 
 	PassDataToCB(transform.GetWorldMatrix());
 	SetBufferToPipeline();
 
-	Direct3D::pContext_->DrawIndexed(indexNum_, 0, 0);
+	Direct3D::pContext_->DrawIndexed((UINT)indexNum_, (UINT)0, 0);
+}
+
+void Sprite::Draw(Transform& transform, RECT rect, float alpha)
+{
+	static float scroll = 0.0f;
+	scroll += 0.001f;
+
+	//いろいろ設定
+	Direct3D::SetShader(Direct3D::SHADER_2D);
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	Direct3D::pContext_->IASetVertexBuffers(0, 1, &pVertexBuffer_, &stride, &offset);
+	Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);
+	Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);
+	Direct3D::SetDepthBafferWriteEnable(false);
+	//インデックスバッファーをセット
+	stride = sizeof(int);
+	offset = 0;
+	Direct3D::pContext_->IASetIndexBuffer(pIndexBuffer_, DXGI_FORMAT_R32G32B32A32_UINT,offset);
+
+	//パラメータの受け渡し
+	D3D11_MAPPED_SUBRESOURCE pdata;
+	CONSTANT_BUFFER cb;
+
+	transform.Calclation();	//トランスフォームを計算
+
+	//表示するサイズに合わせる
+	XMMATRIX cut = XMMatrixScaling((float)rect.right, (float)rect.bottom, (float)rect.left);
+
+	//画面に合わせる
+	XMMATRIX view = XMMatrixScaling(1.0f / Direct3D::screenSize.cx, 1.0f / Direct3D::screenSize.cy, 1.0f / Direct3D::screenSize.cz);
+
+	//最終的な行列
+	XMMATRIX world = cut * transform.matScale_ * transform.matRotate_ * transform.matPosition_;
+	cb.world = XMMatrixTranspose(world);
+
+	//テクスチャ座標変換行列を渡す
+
+
+
 }
 
 void Sprite::Release()

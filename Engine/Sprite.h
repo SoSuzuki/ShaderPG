@@ -43,6 +43,7 @@ public:
 	~Sprite();
 	virtual HRESULT Initialize();
 	virtual void Draw(Transform& transform);
+	void Draw(Transform& transform, RECT rect, float alpha);
 	void Release();
 
 	ID3D11Buffer* GetVertexBuffer() { return pVertexBuffer_; }

@@ -44,5 +44,11 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD)
 //„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
 float4 PS(VS_OUT inData) : SV_Target
 {
-	return g_texture.Sample(g_sampler, inData.uv);
+	float4 output;
+	float2 tmpuv = inData.uv;
+	tmpuv.x += g_scroll;
+	output = g_vecColor * g_texture.Sample(g_sampler, tmpuv);
+
+	//return g_texture.Sample(g_sampler, inData.uv);
+	return output;
 }

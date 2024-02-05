@@ -29,8 +29,12 @@ HRESULT Sprite::Initialize()
 
 void Sprite::Draw(Transform& transform)
 {
-	Direct3D::SetShader(Direct3D::SHADER_2D);
+	static float scroll = 0.0f;
+	scroll += 0.01f;
 
+	Direct3D::SetShader(Direct3D::SHADER_2D);
+	UINT stride = sizeof(VERTEX);
+	UINT;
 	transform.Calclation();	//トランスフォームを計算
 
 	PassDataToCB(transform.GetWorldMatrix());

@@ -51,8 +51,15 @@ namespace Direct3D
 	//解放
 	void Release();
 
+	/// <summary>
+	/// Zバッファへの書き込みON/OFF
+	/// </summary>
+	/// <param name="_isWrite">true = 書き込みON/false = 書き込みOFF</param>
+	void SetDepthBafferWriteEnable(bool _isWrite);
+
 	//extern	CPP側で定義忘れないこと！
 	extern ID3D11Device* pDevice_;
 	extern ID3D11DeviceContext* pContext_;	//デバイスコンテキスト
+	extern SIZE screenSize;
 
 };

@@ -29,6 +29,7 @@ namespace Direct3D
 		ID3D11RasterizerState* pRasterizerState_ = nullptr;
 	};
 	SHADER_BUNDLE shaderBundle[SHADER_MAX];
+	SIZE screenSize;
 }
 
 
@@ -535,4 +536,18 @@ void Direct3D::Release()
 	SAFE_RELEASE(pSwapChain_);
 	SAFE_RELEASE(pContext_);
 	SAFE_RELEASE(pDevice_);
+}
+
+void Direct3D::SetDepthBafferWriteEnable(bool _isWrite)
+{
+	//ON
+	if (_isWrite){
+		//Zバッファ（デプスステンシルを指定する）
+		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, pDepthStencilView);
+	}
+
+	//OFF
+	else{
+		pContext_->OMSetRenderTargets(1, &pRenderTargetView_, nullptr);
+	}
 }

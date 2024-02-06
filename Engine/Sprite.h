@@ -14,7 +14,10 @@ class Sprite
 	//コンスタントバッファー
 	struct CONSTANT_BUFFER
 	{
-		XMMATRIX	matW;
+		XMMATRIX	matW;		//頂点座標変換行列
+		XMMATRIX	uvTrans;	//テクスチャ座標変換
+		XMFLOAT4	color;		//テクスチャとの合成
+		float		scroll;
 	};
 
 	//頂点情報
@@ -41,14 +44,25 @@ protected:
 public:
 	Sprite();
 	~Sprite();
+
+	float scrollVal_;
+
 	virtual HRESULT Initialize();
 	virtual void Draw(Transform& transform);
 	void Draw(Transform& transform, RECT rect, float alpha);
 	void Release();
 
+	/// <summary>
+	///  画像サイズの取得
+	/// </summary>
+	/// <returns>画像サイズ</returns>
+	XMFLOAT2 GetTextureSize() { return pTexture_->GetTextureSize(); }
+
 	ID3D11Buffer* GetVertexBuffer() { return pVertexBuffer_; }
 	ID3D11Buffer* GetIndexBuffer() { return pIndexBuffer_; }
 	ID3D11Buffer* GetConstantBuffer() { return pConstantBuffer_; }
+
+	HRESULT Load(string _filename);
 
 private:
 	//---------Initializeから呼ばれる関数---------

@@ -39,3 +39,18 @@ XMMATRIX Transform::GetNormalMatrix()
 {
 	return matRotate_ * XMMatrixInverse(nullptr, matScale_);
 }
+
+XMMATRIX Transform::GetmatTranslate()
+{
+	return matTranslate_;
+}
+
+XMMATRIX Transform::GetmatRotate()
+{
+	return matRotate_;
+}
+
+XMMATRIX Transform::GetmatScale()
+{
+	return matScale_;
+}

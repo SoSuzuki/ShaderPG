@@ -30,5 +30,9 @@ public:
 
 	//法線変形用行列を取得
 	XMMATRIX GetNormalMatrix();
+
+	XMMATRIX GetmatTranslate();
+	XMMATRIX GetmatRotate();
+	XMMATRIX GetmatScale();
 };
 

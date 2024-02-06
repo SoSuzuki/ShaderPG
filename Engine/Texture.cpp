@@ -6,7 +6,7 @@
 //#pragma comment( lib, "WindowsCodecs.lib" )
 #pragma comment( lib, "DirectXTex.lib" )
 
-Texture::Texture():pSampler_(nullptr),pSRV_(nullptr)
+Texture::Texture() :pSampler_(nullptr), pSRV_(nullptr), imgSize_{ 0.0f,0.0f }
 {
 }
 
@@ -29,6 +29,7 @@ HRESULT Texture::Load(std::string fileName)
 	ScratchImage image;
 	HRESULT hr;
 	hr = LoadFromWICFile(wtext, WIC_FLAGS::WIC_FLAGS_NONE, &metadata, image);
+	imgSize_ = XMFLOAT2{ (float)image.GetImages()->width,(float)image.GetImages()->height };
 	//////////////////////////////////////
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "ファイルのロードに失敗", "えらー", MB_OK);

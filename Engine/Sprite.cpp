@@ -2,7 +2,7 @@
 
 Sprite::Sprite() :
 	vertexNum_(0), vertices_{}, indexNum_(0), index_(0),
-	pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr)
+	pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), scrollVal_(0)
 {
 	//index_ = { 0, 2, 3, 0, 1, 2 };
 }
@@ -40,8 +40,7 @@ void Sprite::Draw(Transform& transform)
 
 void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 {
-	static float scroll = 0.0f;
-	scroll += 0.001f;
+	scrollVal_ += 0.001f;
 
 	//いろいろ設定
 	Direct3D::SetShader(Direct3D::SHADER_2D);
@@ -66,16 +65,44 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	XMMATRIX cut = XMMatrixScaling((float)rect.right, (float)rect.bottom, (float)rect.left);
 
 	//画面に合わせる
-	XMMATRIX view = XMMatrixScaling(1.0f / Direct3D::screenSize.cx, 1.0f / Direct3D::screenSize.cy, 1.0f / Direct3D::screenSize.cz);
+	XMMATRIX view = XMMatrixScaling(1.0f / Direct3D::screenSize.cx, 1.0f / Direct3D::screenSize.cy, 1.0f);
 
 	//最終的な行列
-	XMMATRIX world = cut * transform.matScale_ * transform.matRotate_ * transform.matPosition_;
-	cb.world = XMMatrixTranspose(world);
+	XMMATRIX world = cut * transform.GetmatScale() * transform.GetmatRotate() * transform.GetmatTranslate();
+	cb.matW = XMMatrixTranspose(world);
 
 	//テクスチャ座標変換行列を渡す
+	XMMATRIX mTexTrans = XMMatrixTranslation((float)rect.left / (float)pTexture_->GetTextureSize().x,
+		(float)rect.top / (float)pTexture_->GetTextureSize().y, 0.0f);
 
+	XMMATRIX mTexScale = XMMatrixScaling((float)rect.right / (float)pTexture_->GetTextureSize().x,
+		(float)rect.bottom / (float)pTexture_->GetTextureSize().y,1.0f);
 
+	XMMATRIX mTexel = mTexScale * mTexTrans;
+	cb.uvTrans = XMMatrixTranspose(mTexel);
 
+	cb.color = XMFLOAT4(1, 1, 1, alpha);
+	cb.scroll = scrollVal_;
+
+	Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
+	memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
+
+	ID3D11SamplerState* pSampler = pTexture_->GetSampler();	//サンプラーをシェーダーに
+	Direct3D::pContext_->PSSetSamplers(0, 1, &pSampler);
+
+	ID3D11ShaderResourceView* pSRV = pTexture_->GetSRV();	//テクスチャをシェーダーに
+	Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
+
+	Direct3D::pContext_->Unmap(pConstantBuffer_, 0);	//再開
+
+	SetBufferToPipeline();
+
+	//ポリゴンメッシュを描画する
+	Direct3D::pContext_->DrawIndexed(indexNum_, 0, 0);
+
+	Direct3D::SetShader(Direct3D::SHADER_3D);
+
+	Direct3D::SetDepthBafferWriteEnable(true);
 }
 
 void Sprite::Release()

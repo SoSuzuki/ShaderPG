@@ -16,13 +16,19 @@ using namespace Direct3D;
 
 class Texture;
 
+enum RENDER_STATE
+{
+	RENDER_DIRLIGHT,
+	RENDER_PNTLIGHT,
+};
+
 class Fbx
 {
 	//マテリアル
 	struct MATERIAL
 	{
-		Texture* pTexture;
-		Texture* pNormalMap;
+		Texture*	pTexture;
+		Texture*	pNormalMap;
 		XMFLOAT4	diffuse;
 		XMFLOAT4	ambient;
 		XMFLOAT4	specular;
@@ -62,6 +68,12 @@ class Fbx
 	MATERIAL* pMaterialList_;
 
 	Texture* pTexture_;
+
+	void InitVertex(fbxsdk::FbxMesh* mesh);
+	void InitIndex(fbxsdk::FbxMesh* mesh);
+	void InitConstantBuffer();
+	void InitMaterial(fbxsdk::FbxNode* pNode);
+	RENDER_STATE state_;
 public:
 
 	Fbx();
@@ -69,20 +81,16 @@ public:
 
 	HRESULT Load(std::string fileName);
 	void Draw(Transform& transform);
+	void SetRenderingShader(RENDER_STATE _state) { state_ = _state; }
 	void Release();
-
-	void InitVertex(fbxsdk::FbxMesh* mesh);
-	void InitIndex(fbxsdk::FbxMesh* mesh);
-	void InitConstantBuffer();
-	void InitMaterial(fbxsdk::FbxNode* pNode);
 
 	//void SetFlatColor(XMFLOAT4 col);
 
 private:
 
 	//---------Draw関数から呼ばれる関数---------
-	void PassDataToCB(DirectX::XMMATRIX worldMatrix);	//コンスタントバッファに情報を渡す
-	void SetBufferToPipeline();
+	//void PassDataToCB(DirectX::XMMATRIX worldMatrix);	//コンスタントバッファに情報を渡す
+	//void SetBufferToPipeline();
 
 };
 

@@ -31,7 +31,7 @@ struct VS_OUT
 VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD)
 {
 	//ピクセルシェーダーへ渡す情報
-	VS_OUT outData;
+	VS_OUT outData = (VS_OUT)0;
 
 	//ローカル座標に、ワールド行列をかけて
 	//ワールド座標に変換し、ピクセルシェーダーへ
@@ -54,4 +54,9 @@ float4 PS(VS_OUT inData) : SV_Target
 
 	//return g_texture.Sample(g_sampler, inData.uv);
 	return output;
+
+
+	//float4 result = diffuse + ambient + specular;
+	//result.a = (result.r + result.g + result.b) / 3;
+	//return result;
 }

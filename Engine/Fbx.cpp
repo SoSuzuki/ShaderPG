@@ -307,8 +307,10 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 
 void Fbx::Draw(Transform& transform)
 {
-	//Direct3D::SetShader(SHADER_3D);	// ここでシェーダー切り替え
-	Direct3D::SetShader(SHADER_NORMALMAP);
+	if (state_ == RENDER_DIRLIGHT)
+		Direct3D::SetShader(SHADER_NORMALMAP);
+	else
+		Direct3D::SetShader(SHADER_3D);
 
 	transform.Calclation();//トランスフォームを計算
 	//コンスタントバッファに情報を渡す

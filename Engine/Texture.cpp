@@ -1,4 +1,4 @@
-#include <wincodec.h>
+//#include <wincodec.h>
 #include <DirectXTex.h>
 #include "Texture.h"
 #include "Direct3D.h"
@@ -63,7 +63,7 @@ HRESULT Texture::Load(std::string fileName)
 			image.GetImages(), image.GetImageCount(), metadata, &pSRV_);
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "シェーダリソースビューがダメ", "エラー", MB_OK);
-		return E_FAIL;
+		return S_FALSE;
 	}
 
 	return S_OK;
@@ -71,6 +71,6 @@ HRESULT Texture::Load(std::string fileName)
 
 void Texture::Release()
 {
-	//SAFE_RELEASE(pSRV_);
-	//SAFE_RELEASE(pSampler_);
+	SAFE_RELEASE(pSRV_);
+	SAFE_RELEASE(pSampler_);
 }

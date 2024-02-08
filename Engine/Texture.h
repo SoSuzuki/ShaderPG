@@ -2,7 +2,9 @@
 #include <d3d11.h>
 #include <string>
 #include <wrl.h>
+#include <DirectXMath.h>
 
+using namespace DirectX;
 using namespace Microsoft::WRL;
 using std::string;
 

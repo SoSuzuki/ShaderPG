@@ -162,8 +162,9 @@ HRESULT Direct3D::Initialize(int winW, int winH, HWND hWnd)
 	//カメラ準備
 	Camera::Initialize();
 
-	scrWidth = winW;
-	scrHeight = winH;
+	//scrWidth = winW;
+	//scrHeight = winH;
+	screenSize = { winW, winH };
 
 	return S_OK;
 }
@@ -215,7 +216,7 @@ HRESULT Direct3D::InitShader2D()
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(XMVECTOR) , D3D11_INPUT_PER_VERTEX_DATA, 0 },//UV座標
 	};
 	//hr = pDevice_->CreateInputLayout(layout, sizeof(layout)/sizeof(D3D11_INPUT_ELEMENT_DESC), pCompileVS->GetBufferPointer(),pCompileVS->GetBufferSize(), &pVertexLayout_);
-	hr = pDevice_->CreateInputLayout(layout.data(), layout.size(), pCompileVS->GetBufferPointer(), 
+	hr = pDevice_->CreateInputLayout(layout.data(), (UINT)layout.size(), pCompileVS->GetBufferPointer(), 
 		pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_2D].pVertexLayout_));
 	if (FAILED(hr)) {
 		MessageBox(nullptr, "頂点インプットレイアウトの作成に失敗しました", "エラー", MB_OK);
@@ -240,7 +241,9 @@ HRESULT Direct3D::InitShader2D()
 	D3D11_RASTERIZER_DESC rdc = {};
 	rdc.CullMode = D3D11_CULL_BACK;		//NONE -> ポリゴンの裏側でも関係なく描画（重くなる）
 	rdc.FillMode = D3D11_FILL_SOLID;	//SOLID -> 塗りつぶし　WIREFRAME -> ワイヤフレーム
-	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
+	rdc.FrontCounterClockwise = TRUE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
+	//rdc.ScissorEnable = false;
+	//rdc.MultisampleEnable = false;
 	//陰面消去ってやつ
 	hr = pDevice_->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_2D].pRasterizerState_));
 	if (FAILED(hr)) {
@@ -474,6 +477,8 @@ HRESULT Direct3D::InitNormalMapRenderer()
 	rdc.CullMode = D3D11_CULL_NONE;		//NONE -> ポリゴンの裏側でも関係なく描画（重くなる） BACK -> 裏面を描画しない
 	rdc.FillMode = D3D11_FILL_SOLID;	//SOLID -> 塗りつぶし　WIREFRAME -> ワイヤフレーム
 	rdc.FrontCounterClockwise = FALSE;	//Clockwise -> 時計回りらしい。counterと書かれているので…？
+	rdc.ScissorEnable = false;
+	rdc.MultisampleEnable = false;
 	//陰面消去
 	hr = pDevice_->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_NORMALMAP].pRasterizerState_));
 	if (FAILED(hr)) {

@@ -100,7 +100,7 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	//ƒ|ƒŠƒSƒ“ƒƒbƒVƒ…‚ð•`‰æ‚·‚é
 	Direct3D::pContext_->DrawIndexed(indexNum_, 0, 0);
 
-	Direct3D::SetShader(Direct3D::SHADER_3D);
+	Direct3D::SetShader(Direct3D::SHADER_NORMALMAP);
 
 	Direct3D::SetDepthBafferWriteEnable(true);
 }

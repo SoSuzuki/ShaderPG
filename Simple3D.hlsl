@@ -17,7 +17,7 @@ cbuffer gmodel:register(b0)
 	float4		ambientColor;	// 環境光
 	float4		specularColor;	// 鏡面反射光
 	float		shininess;
-	bool		isTextured;		// テクスチャ貼ってあるかどうか
+	bool		hasTextured;		// テクスチャ貼ってあるかどうか
 };
 
 cbuffer gmodel:register(b1)
@@ -81,7 +81,7 @@ float4 PS(VS_OUT inData) : SV_Target
 	//float4 reflect = normalize(2 * NL * inData.normal - normalize(lightPos));
 
 	float4 specular = pow(saturate(dot(reflect(normalize(lightPos),inData.normal), normalize(inData.eyev))), shininess) * specularColor;
-	if (isTextured == false) {
+	if (hasTextured == false) {
 		// 拡散反射色
 		diffuse = lightSource * diffuseColor * inData.color;
 		// 環境反射色

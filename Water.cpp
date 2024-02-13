@@ -11,9 +11,9 @@ Water::~Water()
 
 void Water::Initialize()
 {
-	hModel_ = Model::Load("Assets/WaterSurface2.fbx");
+	hModel_ = Model::Load("Assets/Water.fbx");
 	assert(hModel_ >= 0);
-
+	transform_.scale_ = XMFLOAT3(3.0f, 1, 3.0f);
 }
 
 void Water::Update()

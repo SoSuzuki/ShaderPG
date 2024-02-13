@@ -8,7 +8,7 @@ const XMFLOAT4 LIGHT_DERECTION{ 1,5,0,1 };
 
 Fbx::Fbx() :vertexCount_(0), polygonCount_(0), materialCount_(0),indexCount_(nullptr),
 pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), 
-pMaterialList_(nullptr)
+pMaterialList_(nullptr), scrollVal_(0)
 {
 }
 
@@ -307,6 +307,8 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 
 void Fbx::Draw(Transform& transform)
 {
+	scrollVal_ += 0.001f;
+
 	if (state_ == RENDER_DIRLIGHT)
 		Direct3D::SetShader(SHADER_NORMALMAP);
 	else
@@ -331,6 +333,8 @@ void Fbx::Draw(Transform& transform)
 		cb.hasTexture = pMaterialList_[i].pTexture != nullptr;
 		cb.hasNormalMap = pMaterialList_[i].pNormalMap != nullptr;
 		
+		cb.scroll = scrollVal_;
+
 		//D3D11_MAPPED_SUBRESOURCE pdata;
 		//Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
 		//memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る

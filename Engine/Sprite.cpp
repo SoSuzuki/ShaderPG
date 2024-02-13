@@ -2,7 +2,7 @@
 
 Sprite::Sprite() :
 	vertexNum_(0), vertices_{}, indexNum_(0), index_(0),
-	pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr), scrollVal_(0)
+	pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), pTexture_(nullptr)
 {
 	//index_ = { 0, 2, 3, 0, 1, 2 };
 }
@@ -40,7 +40,6 @@ void Sprite::Draw(Transform& transform)
 
 void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 {
-	scrollVal_ += 0.001f;
 
 	//いろいろ設定
 	Direct3D::SetShader(Direct3D::SHADER_2D);
@@ -82,7 +81,6 @@ void Sprite::Draw(Transform& transform, RECT rect, float alpha)
 	cb.uvTrans = XMMatrixTranspose(mTexel);
 
 	cb.color = XMFLOAT4(1, 1, 1, alpha);
-	cb.scroll = scrollVal_;
 
 	Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
 	memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る

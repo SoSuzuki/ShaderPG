@@ -17,7 +17,6 @@ class Sprite
 		XMMATRIX	matW;		//頂点座標変換行列
 		XMMATRIX	uvTrans;	//テクスチャ座標変換
 		XMFLOAT4	color;		//テクスチャとの合成
-		float		scroll;
 	};
 
 	//頂点情報
@@ -45,7 +44,6 @@ public:
 	Sprite();
 	~Sprite();
 
-	float scrollVal_;
 
 	virtual HRESULT Initialize();
 	virtual void Draw(Transform& transform);

@@ -127,24 +127,24 @@ HRESULT Direct3D::Initialize(int winW, int winH, HWND hWnd)
 
 
 	//ブレンドステート
-	D3D11_BLEND_DESC BlendDesc;
-	ZeroMemory(&BlendDesc, sizeof(BlendDesc));
-	BlendDesc.AlphaToCoverageEnable = FALSE;
-	BlendDesc.IndependentBlendEnable = FALSE;
+	//D3D11_BLEND_DESC BlendDesc;
+	//ZeroMemory(&BlendDesc, sizeof(BlendDesc));
+	//BlendDesc.AlphaToCoverageEnable = FALSE;
+	//BlendDesc.IndependentBlendEnable = FALSE;
 
-	BlendDesc.RenderTarget[0].BlendEnable = TRUE;					//半透明使うかどうか
-	BlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;		//今描画しようとしてるもの
-	BlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;//既に描画されてるもの	INV->Inverse
-	BlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;			//どう計算するか(ADDだから足し算)
-	
-	BlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	BlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	BlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	BlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	pDevice_->CreateBlendState(&BlendDesc, &pBlendState);
+	//BlendDesc.RenderTarget[0].BlendEnable = TRUE;					//半透明使うかどうか
+	//BlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;		//今描画しようとしてるもの
+	//BlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;//既に描画されてるもの	INV->Inverse
+	//BlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;			//どう計算するか(ADDだから足し算)
+	//
+	//BlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	//BlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	//BlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	//BlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	//pDevice_->CreateBlendState(&BlendDesc, &pBlendState);
 
-	float blendFactor[4] = { D3D11_BLEND_ZERO,D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO };
-	pContext_->OMSetBlendState(pBlendState, blendFactor, 0xffffffff);
+	//float blendFactor[4] = { D3D11_BLEND_ZERO,D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO };
+	//pContext_->OMSetBlendState(pBlendState, blendFactor, 0xffffffff);
 
 	//データを画面に描画するための一通りの設定（パイプライン）
 	pContext_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);  // データの入力種類を指定
